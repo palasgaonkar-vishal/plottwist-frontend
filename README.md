@@ -19,16 +19,54 @@ React TypeScript frontend for the PlotTwist book review platform with Material-U
 
 ## 🛠️ Development Setup
 
-### Using Docker Compose (Recommended)
+### Option 1: Frontend-Only Development
 
-1. Clone the repository and navigate to the project root
-2. Start all services:
-   ```bash
-   docker-compose up -d
-   ```
-3. The frontend will be available at `http://localhost:3000`
+This setup runs only the frontend, useful when working with a separately running backend:
 
-### Local Development
+```bash
+# Clone this repository
+git clone git@github.com:palasgaonkar-vishal/plottwist-frontend.git
+cd plottwist-frontend
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+
+# Or using Docker
+docker-compose -f docker-compose.dev.yml up -d
+
+# The frontend will be available at http://localhost:3000
+```
+
+### Option 2: Full-Stack Development (Recommended)
+
+For full-stack development, clone both repositories and use the full-stack setup:
+
+```bash
+# Create a workspace directory
+mkdir plottwist-workspace
+cd plottwist-workspace
+
+# Clone both repositories
+git clone git@github.com:palasgaonkar-vishal/plottwist-backend.git
+git clone git@github.com:palasgaonkar-vishal/plottwist-frontend.git
+
+# Download the full-stack docker-compose file
+curl -O https://raw.githubusercontent.com/palasgaonkar-vishal/plottwist-backend/main/docker-compose.fullstack.yml
+curl -O https://raw.githubusercontent.com/palasgaonkar-vishal/plottwist-backend/main/init-db.sql
+
+# Start all services
+docker-compose -f docker-compose.fullstack.yml up -d
+
+# Services will be available at:
+# - Frontend: http://localhost:3000
+# - Backend: http://localhost:8000
+# - Database: localhost:5432
+```
+
+### Option 3: Local Development (Without Docker)
 
 1. Install dependencies:
    ```bash
@@ -41,6 +79,8 @@ React TypeScript frontend for the PlotTwist book review platform with Material-U
    ```
 
 3. Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+**Note:** For the frontend to work properly, you'll need the backend API running at `http://localhost:8000`.
 
 ## 🧪 Testing
 
@@ -99,16 +139,26 @@ The frontend communicates with the backend API at:
 - AI-powered book recommendations
 - Dark/light theme toggle
 
-## 🚀 Deployment
-
-Deployment configuration will be added in Task 011.
-
 ## Available Scripts
 
 - `npm start` - Runs the app in development mode
 - `npm test` - Launches the test runner
 - `npm run build` - Builds the app for production
 - `npm run eject` - Ejects from Create React App (one-way operation)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests (`npm test`)
+5. Commit your changes (`git commit -m 'Add some amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+## 🚀 Deployment
+
+Deployment configuration will be added in Task 011.
 
 ## 📄 License
 
