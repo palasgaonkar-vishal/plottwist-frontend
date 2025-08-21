@@ -3,17 +3,14 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
-# Install only essential system packages
+# Install system packages
 RUN apk add --no-cache wget
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies using npm install instead of npm ci to avoid authentication issues
-# This approach is more permissive with authentication
-RUN npm config set registry https://registry.npmjs.org/ && \
-    npm config set strict-ssl false && \
-    npm install --production --no-audit --no-fund
+# Simple npm install without any configuration
+RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 # Copy source code
 COPY . .
