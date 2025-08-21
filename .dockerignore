@@ -57,7 +57,7 @@ node_modules/
 
 # gatsby files
 .cache/
-public
+# Note: Removed 'public' from here as it's needed for React builds
 
 # vuepress build output
 .vuepress/dist
