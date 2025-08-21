@@ -1,20 +1,21 @@
-FROM node:20-alpine
+FROM node:16-alpine
 
 # Set working directory
 WORKDIR /app
 
+# Install system packages
+RUN apk add --no-cache wget
+
 # Copy package files
 COPY package*.json ./
 
-# Clear npm cache and install dependencies
+# Install with stable versions - react-scripts 4.0.3 + React 18.2
 RUN npm cache clean --force && \
-    npm ci --omit=dev
+    rm -rf node_modules package-lock.json && \
+    npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
-
-# Build the application
-RUN npm run build
 
 # Expose port
 EXPOSE 3000
@@ -23,5 +24,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
 
-# Start the application
+# Start development server
 CMD ["npm", "start"] 

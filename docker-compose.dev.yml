@@ -1,17 +1,19 @@
 version: '3.8'
 
 services:
-  # Frontend React App
+  # Frontend React App (Development Only)
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: plottwist-frontend
+    container_name: plottwist-frontend-dev
     ports:
       - "3000:3000"
     environment:
       - REACT_APP_API_URL=http://localhost:8000
       - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - NODE_ENV=development
     volumes:
       - ./src:/app/src
       - ./public:/app/public
