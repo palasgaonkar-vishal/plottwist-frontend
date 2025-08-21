@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
@@ -9,8 +9,9 @@ RUN apk add --no-cache wget
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies with proper dependency resolution
+# Clean install with compatible React 18 dependencies
 RUN npm cache clean --force && \
+    rm -rf node_modules package-lock.json && \
     npm install --legacy-peer-deps --no-audit --no-fund
 
 # Copy source code
