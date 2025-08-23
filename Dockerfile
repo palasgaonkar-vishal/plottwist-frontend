@@ -7,9 +7,8 @@ WORKDIR /app
 # Install system dependencies
 RUN apk add --no-cache curl
 
-# Set Node.js options for OpenSSL legacy provider (needed for webpack 4)
-# Added --no-experimental-fetch to prevent potential issues
-ENV NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096 --no-experimental-fetch"
+# Note: NODE_OPTIONS with --openssl-legacy-provider will be set only at runtime
+# to avoid conflicts during npm install phase
 
 # Copy package files
 COPY package*.json ./
