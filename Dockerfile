@@ -1,28 +1,32 @@
-FROM node:16-alpine
+# Use Node.js 18 alpine image
+FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Install system packages
-RUN apk add --no-cache wget
+# Install system dependencies
+RUN apk add --no-cache curl
 
 # Copy package files
 COPY package*.json ./
 
-# Install with stable versions - react-scripts 4.0.3 + React 18.2
-RUN npm cache clean --force && \
-    rm -rf node_modules package-lock.json && \
-    npm install --legacy-peer-deps
+# Install dependencies
+RUN npm install
 
-# Copy source code
+# Copy the application code
 COPY . .
+
+# Create a non-root user
+RUN addgroup -g 1001 -S nodejs && adduser -S app -u 1001 -G nodejs
+RUN chown -R app:nodejs /app
+USER app
 
 # Expose port
 EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:3000 || exit 1
 
-# Start development server
+# Start the application
 CMD ["npm", "start"] 
