@@ -1,5 +1,5 @@
 # Use Node.js 16 for better compatibility with react-scripts 4.0.3
-FROM node:16-alpine
+FROM node:16.20.2-alpine
 
 # Set working directory
 WORKDIR /app
@@ -8,7 +8,8 @@ WORKDIR /app
 RUN apk add --no-cache curl
 
 # Set Node.js options for OpenSSL legacy provider (needed for webpack 4)
-ENV NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096"
+# Added --no-experimental-fetch to prevent potential issues
+ENV NODE_OPTIONS="--openssl-legacy-provider --max_old_space_size=4096 --no-experimental-fetch"
 
 # Copy package files
 COPY package*.json ./
@@ -31,5 +32,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:3000 || exit 1
 
-# Start the application
-CMD ["npm", "start"] 
+# Start the application with explicit NODE_OPTIONS
+CMD ["sh", "-c", "NODE_OPTIONS='--openssl-legacy-provider --max_old_space_size=4096' npm start"] 
