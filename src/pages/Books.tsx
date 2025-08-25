@@ -101,15 +101,22 @@ const Books: React.FC = () => {
     }
   }, []); // FIXED: No dependencies - completely stable function
 
-  // FIXED: Debounced search effect with stable function reference
+  // FIXED: Separate debounced effects to prevent re-render chains
+  // Debounce search query changes
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      console.log('🔍 Debounced search triggered for query:', searchQuery);
+      console.log('🔍 Debounced SEARCH triggered for query:', searchQuery);
       loadBooksStable(searchQuery, filters, 1); // Always reset to page 1 for new searches
     }, 300); // 300ms debounce
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, filters, loadBooksStable]); // loadBooksStable is now stable
+  }, [searchQuery, loadBooksStable]); // FIXED: Removed filters from dependencies
+
+  // Separate effect for filter changes (no debounce needed for filters)
+  useEffect(() => {
+    console.log('🔍 FILTER changed, loading books immediately');
+    loadBooksStable(searchQuery, filters, 1); // Reset to page 1 for new filters
+  }, [filters, loadBooksStable]); // Only filters dependency
 
   // FIXED: Load initial books only when pagination changes
   useEffect(() => {
@@ -119,13 +126,15 @@ const Books: React.FC = () => {
     }
   }, [currentPage, itemsPerPage, loadBooksStable]); // Removed searchQuery and filters dependencies
 
-  // Event handlers
+  // FIXED: Stable event handlers that won't cause SearchBar re-renders
   const handleSearch = useCallback((query: string) => {
+    console.log('🔍 Search handler called with:', query);
     setSearchQuery(query);
     setCurrentPage(1); // Reset to first page on new search
   }, []);
 
   const handleFiltersChange = useCallback((newFilters: BookFilters) => {
+    console.log('🔍 Filters handler called with:', newFilters);
     setFilters(newFilters);
     setCurrentPage(1); // Reset to first page on filter change
   }, []);
