@@ -20,8 +20,16 @@ export interface AuthState {
 
 const initialState: AuthState = {
   user: null,
-  accessToken: localStorage.getItem('accessToken'),
-  refreshToken: localStorage.getItem('refreshToken'),
+  accessToken: (() => {
+    const token = localStorage.getItem('accessToken');
+    console.log('🔍 INIT DEBUG - Loading accessToken from localStorage:', !!token);
+    return token;
+  })(),
+  refreshToken: (() => {
+    const token = localStorage.getItem('refreshToken');
+    console.log('🔍 INIT DEBUG - Loading refreshToken from localStorage:', !!token);
+    return token;
+  })(),
   isLoading: false,
   error: null,
   // Don't assume authenticated just because token exists - validate first
@@ -107,6 +115,7 @@ const authSlice = createSlice({
       state.error = null;
     },
     logout: (state) => {
+      console.log('🚪 LOGOUT DEBUG - Clearing authentication state and tokens');
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
@@ -114,6 +123,7 @@ const authSlice = createSlice({
       state.error = null;
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      console.log('✅ LOGOUT DEBUG - Tokens cleared from localStorage');
     },
     setTokens: (state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) => {
       state.accessToken = action.payload.accessToken;
@@ -131,13 +141,27 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
+        console.log('🔍 LOGIN DEBUG - Received tokens:', {
+          access_token: !!action.payload.access_token,
+          refresh_token: !!action.payload.refresh_token,
+          user: !!action.payload.user
+        });
+        
         state.isLoading = false;
         state.user = action.payload.user;
         state.accessToken = action.payload.access_token;
         state.refreshToken = action.payload.refresh_token;
         state.isAuthenticated = true;
+        
+        // Store tokens in localStorage
         localStorage.setItem('accessToken', action.payload.access_token);
         localStorage.setItem('refreshToken', action.payload.refresh_token);
+        
+        console.log('✅ LOGIN DEBUG - Tokens stored in localStorage');
+        console.log('🔍 LOGIN DEBUG - Verify storage:', {
+          storedAccessToken: !!localStorage.getItem('accessToken'),
+          storedRefreshToken: !!localStorage.getItem('refreshToken')
+        });
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -206,6 +230,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(getCurrentUser.rejected, (state, action) => {
+        console.log('❌ GET_USER DEBUG - Token validation failed, clearing tokens:', action.payload);
         state.isLoading = false;
         state.error = action.payload as string;
         // Clear auth state if token is invalid/expired
@@ -215,6 +240,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+        console.log('🧹 GET_USER DEBUG - Tokens cleared due to validation failure');
       });
   },
 });

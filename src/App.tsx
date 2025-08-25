@@ -32,9 +32,14 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = localStorage.getItem('accessToken');
+      // FIXED: Use Redux state token instead of localStorage directly
+      console.log('🔍 AUTH DEBUG - Redux accessToken:', !!accessToken);
+      console.log('🔍 AUTH DEBUG - localStorage token:', !!localStorage.getItem('accessToken'));
+      console.log('🔍 AUTH DEBUG - isAuthenticated:', isAuthenticated);
+      console.log('🔍 AUTH DEBUG - isLoading:', isLoading);
       
-      if (!token) {
+      // Use the token from Redux state (which loads from localStorage in initialState)
+      if (!accessToken) {
         console.log('🔑 No token found, user needs to login');
         return;
       }
@@ -70,7 +75,7 @@ const AppContent: React.FC = () => {
     };
 
     initializeAuth();
-  }, [dispatch, isAuthenticated, isLoading]); // FIXED: Removed accessToken dependency to prevent loops
+  }, [dispatch, isAuthenticated, isLoading, accessToken]); // FIXED: Added accessToken back as dependency
 
   useEffect(() => {
     // Fix Docker interaction issues
