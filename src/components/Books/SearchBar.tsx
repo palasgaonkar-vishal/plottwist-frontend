@@ -38,22 +38,66 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [showFilters, setShowFilters] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Debounce search input
+  // Debounce search input with useRef to prevent focus loss
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    
+    // Set new timeout
+    searchTimeoutRef.current = setTimeout(() => {
       onSearch(query.trim());
     }, 300);
 
-    return () => clearTimeout(timer);
-  }, [query]); // Removed onSearch from dependencies to prevent unnecessary re-runs
+    // Cleanup function
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, [query]); // Only depend on query, not onSearch
 
   // Notify parent when filters change
   useEffect(() => {
     onFiltersChange(filters);
   }, [filters]); // Removed onFiltersChange from dependencies to prevent unnecessary re-runs
 
+  // Preserve focus and cursor position during component re-renders
+  const wasFocusedRef = useRef(false);
+  const cursorPositionRef = useRef(0);
+  
+  useEffect(() => {
+    // Track if input was focused and cursor position before render
+    if (inputRef.current) {
+      wasFocusedRef.current = document.activeElement === inputRef.current;
+      if (wasFocusedRef.current) {
+        cursorPositionRef.current = inputRef.current.selectionStart || 0;
+      }
+    }
+  });
+
+  useEffect(() => {
+    // Restore focus and cursor position if it was lost during re-render
+    if (wasFocusedRef.current && inputRef.current && document.activeElement !== inputRef.current) {
+      requestAnimationFrame(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          inputRef.current.setSelectionRange(cursorPositionRef.current, cursorPositionRef.current);
+        }
+      });
+    }
+  });
+
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
+    
+    // Ensure focus is maintained
+    if (inputRef.current && document.activeElement !== inputRef.current) {
+      inputRef.current.focus();
+    }
   };
 
   const handleClearSearch = () => {
@@ -86,6 +130,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       {/* Search Input */}
       <Box sx={{ display: 'flex', gap: 2, mb: showFilters ? 2 : 0 }}>
         <TextField
+          key="search-input" // Stable key to prevent recreation
           fullWidth
           inputRef={inputRef}
           value={query}
@@ -93,6 +138,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
           placeholder={placeholder}
           disabled={isLoading}
           autoComplete="off"
+          autoFocus={false} // Prevent auto-focus conflicts
+          spellCheck={false} // Prevent spellcheck interference
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -106,6 +153,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                   onClick={handleClearSearch}
                   disabled={isLoading}
                   aria-label="Clear search"
+                  tabIndex={-1} // Prevent tab interference
                 >
                   <Clear />
                 </IconButton>
@@ -115,6 +163,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
           sx={{
             '& .MuiOutlinedInput-root': {
               bgcolor: 'background.paper',
+            },
+            '& .MuiInputBase-input': {
+              // Ensure input stays focusable
+              '&:focus': {
+                outline: 'none',
+              }
             }
           }}
         />
