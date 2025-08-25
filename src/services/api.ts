@@ -87,49 +87,49 @@ apiClient.interceptors.response.use(
 // Auth API endpoints
 export const authAPI = {
   login: (credentials: { email: string; password: string }): Promise<AxiosResponse<any>> =>
-    publicApiClient.post('/auth/login', credentials),
+    publicApiClient.post('/auth/login/', credentials), // FIXED: Added trailing slash
   
   register: (userData: { name: string; email: string; password: string }): Promise<AxiosResponse<any>> =>
-    publicApiClient.post('/auth/register', userData),
+    publicApiClient.post('/auth/register/', userData), // FIXED: Added trailing slash
   
   logout: (data: { refresh_token: string }): Promise<AxiosResponse<any>> =>
-    apiClient.post('/auth/logout', data),
+    apiClient.post('/auth/logout/', data), // FIXED: Added trailing slash
   
   getCurrentUser: (): Promise<AxiosResponse<any>> =>
-    apiClient.get('/auth/me'),
+    apiClient.get('/auth/me/'), // FIXED: Added trailing slash
   
   refresh: (data: { refresh_token: string }): Promise<AxiosResponse<any>> =>
-    publicApiClient.post('/auth/refresh', data),
+    publicApiClient.post('/auth/refresh/', data), // FIXED: Added trailing slash
 };
 
 // Books API endpoints
 export const booksAPI = {
   getBooks: (params?: any): Promise<AxiosResponse<any>> =>
-    publicApiClient.get('/books', { params }),
+    publicApiClient.get('/books/', { params }), // FIXED: Added trailing slash
 
   searchBooks: (params?: any): Promise<AxiosResponse<any>> =>
-    publicApiClient.get('/books/search', { params }),
+    publicApiClient.get('/books/search/', { params }), // FIXED: Added trailing slash
 
   getBook: (id: number): Promise<AxiosResponse<any>> =>
-    publicApiClient.get(`/books/${id}`),
+    publicApiClient.get(`/books/${id}/`), // FIXED: Added trailing slash
 
   createBook: (bookData: any): Promise<AxiosResponse<any>> =>
-    apiClient.post('/books', bookData),
+    apiClient.post('/books/', bookData), // FIXED: Added trailing slash
 
   updateBook: (id: number, bookData: any): Promise<AxiosResponse<any>> =>
-    apiClient.put(`/books/${id}`, bookData),
+    apiClient.put(`/books/${id}/`, bookData), // FIXED: Added trailing slash
 
   deleteBook: (id: number): Promise<AxiosResponse<any>> =>
-    apiClient.delete(`/books/${id}`),
+    apiClient.delete(`/books/${id}/`), // FIXED: Added trailing slash
 };
 
 // Genres API endpoints
 export const genresAPI = {
   getGenres: (): Promise<AxiosResponse<any>> =>
-    publicApiClient.get('/books/genres'),
+    publicApiClient.get('/books/genres/'), // FIXED: Added trailing slash
 
   getGenre: (id: number): Promise<AxiosResponse<any>> =>
-    publicApiClient.get(`/books/genres/${id}`),
+    publicApiClient.get(`/books/genres/${id}/`), // FIXED: Added trailing slash
 };
 
 export default apiClient; 
