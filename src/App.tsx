@@ -7,6 +7,8 @@ import { store } from './store';
 import { CustomThemeProvider } from './contexts/ThemeContext';
 import { useAppDispatch, useAppSelector } from './store/hooks';
 import { getCurrentUser } from './store/slices/authSlice';
+import { fixDockerEvents, startEventFixObserver } from './utils/eventFixer';
+import './App.css';
 
 // Components
 import Header from './components/Navigation/Header';
@@ -33,6 +35,16 @@ const AppContent: React.FC = () => {
       dispatch(getCurrentUser());
     }
   }, [dispatch, isAuthenticated, accessToken]);
+
+  useEffect(() => {
+    // Fix Docker interaction issues
+    fixDockerEvents();
+    const observer = startEventFixObserver();
+    
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <Router>
