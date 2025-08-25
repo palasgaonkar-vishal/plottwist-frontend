@@ -17,7 +17,7 @@ const getApiBaseUrl = (): string => {
 
 const API_BASE_URL = getApiBaseUrl();
 
-// Create axios instance
+// Create axios instance for authenticated requests
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -25,13 +25,22 @@ const apiClient = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+// Create axios instance for public requests (no auth header)
+const publicApiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Request interceptor to add auth token for authenticated requests
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => {
@@ -78,40 +87,37 @@ apiClient.interceptors.response.use(
 // Auth API endpoints
 export const authAPI = {
   login: (credentials: { email: string; password: string }): Promise<AxiosResponse<any>> =>
-    apiClient.post('/auth/login', credentials),
-
-  register: (userData: { email: string; password: string; name: string }): Promise<AxiosResponse<any>> =>
-    apiClient.post('/auth/register', userData),
-
-  refresh: (data: { refresh_token: string }): Promise<AxiosResponse<any>> =>
-    apiClient.post('/auth/refresh', data),
-
+    publicApiClient.post('/auth/login', credentials),
+  
+  register: (userData: { name: string; email: string; password: string }): Promise<AxiosResponse<any>> =>
+    publicApiClient.post('/auth/register', userData),
+  
   logout: (data: { refresh_token: string }): Promise<AxiosResponse<any>> =>
     apiClient.post('/auth/logout', data),
-
+  
   getCurrentUser: (): Promise<AxiosResponse<any>> =>
     apiClient.get('/auth/me'),
-
-  verifyToken: (): Promise<AxiosResponse<any>> =>
-    apiClient.get('/auth/verify-token'),
+  
+  refresh: (data: { refresh_token: string }): Promise<AxiosResponse<any>> =>
+    publicApiClient.post('/auth/refresh', data),
 };
 
 // Books API endpoints
 export const booksAPI = {
   getBooks: (params?: any): Promise<AxiosResponse<any>> =>
-    apiClient.get('/books', { params }),
+    publicApiClient.get('/books', { params }),
 
   searchBooks: (params?: any): Promise<AxiosResponse<any>> =>
-    apiClient.get('/books/search', { params }),
+    publicApiClient.get('/books/search', { params }),
 
   getBook: (id: number): Promise<AxiosResponse<any>> =>
-    apiClient.get(`/books/${id}`),
+    publicApiClient.get(`/books/${id}`),
 
-  createBook: (data: any): Promise<AxiosResponse<any>> =>
-    apiClient.post('/books', data),
+  createBook: (bookData: any): Promise<AxiosResponse<any>> =>
+    apiClient.post('/books', bookData),
 
-  updateBook: (id: number, data: any): Promise<AxiosResponse<any>> =>
-    apiClient.put(`/books/${id}`, data),
+  updateBook: (id: number, bookData: any): Promise<AxiosResponse<any>> =>
+    apiClient.put(`/books/${id}`, bookData),
 
   deleteBook: (id: number): Promise<AxiosResponse<any>> =>
     apiClient.delete(`/books/${id}`),
@@ -120,10 +126,10 @@ export const booksAPI = {
 // Genres API endpoints
 export const genresAPI = {
   getGenres: (): Promise<AxiosResponse<any>> =>
-    apiClient.get('/books/genres'),
+    publicApiClient.get('/books/genres'),
 
   getGenre: (id: number): Promise<AxiosResponse<any>> =>
-    apiClient.get(`/books/genres/${id}`),
+    publicApiClient.get(`/books/genres/${id}`),
 };
 
 export default apiClient; 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box,
   TextField,
@@ -37,72 +37,43 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [filters, setFilters] = useState<BookFilters>(initialFilters);
   const [showFilters, setShowFilters] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Debounce search input with useRef to prevent focus loss
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
-  useEffect(() => {
-    // Clear existing timeout
+
+  // Stable callback to prevent unnecessary re-renders
+  const debouncedSearch = useCallback((searchQuery: string) => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
     }
     
-    // Set new timeout
     searchTimeoutRef.current = setTimeout(() => {
-      onSearch(query.trim());
+      onSearch(searchQuery.trim());
     }, 300);
+  }, [onSearch]);
 
+  // Handle search query changes with debouncing
+  useEffect(() => {
+    debouncedSearch(query);
+    
     // Cleanup function
     return () => {
       if (searchTimeoutRef.current) {
         clearTimeout(searchTimeoutRef.current);
       }
     };
-  }, [query]); // Only depend on query, not onSearch
+  }, [query, debouncedSearch]);
 
   // Notify parent when filters change
   useEffect(() => {
     onFiltersChange(filters);
-  }, [filters]); // Removed onFiltersChange from dependencies to prevent unnecessary re-runs
-
-  // Preserve focus and cursor position during component re-renders
-  const wasFocusedRef = useRef(false);
-  const cursorPositionRef = useRef(0);
-  
-  useEffect(() => {
-    // Track if input was focused and cursor position before render
-    if (inputRef.current) {
-      wasFocusedRef.current = document.activeElement === inputRef.current;
-      if (wasFocusedRef.current) {
-        cursorPositionRef.current = inputRef.current.selectionStart || 0;
-      }
-    }
-  });
-
-  useEffect(() => {
-    // Restore focus and cursor position if it was lost during re-render
-    if (wasFocusedRef.current && inputRef.current && document.activeElement !== inputRef.current) {
-      requestAnimationFrame(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-          inputRef.current.setSelectionRange(cursorPositionRef.current, cursorPositionRef.current);
-        }
-      });
-    }
-  });
+  }, [filters, onFiltersChange]);
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
-    
-    // Ensure focus is maintained
-    if (inputRef.current && document.activeElement !== inputRef.current) {
-      inputRef.current.focus();
-    }
   };
 
   const handleClearSearch = () => {
     setQuery('');
-    // Maintain focus on input after clearing
+    // Focus the input after clearing
     setTimeout(() => {
       inputRef.current?.focus();
     }, 0);
@@ -128,32 +99,27 @@ const SearchBar: React.FC<SearchBarProps> = ({
   return (
     <Box sx={{ mb: 3 }}>
       {/* Search Input */}
-      <Box sx={{ display: 'flex', gap: 2, mb: showFilters ? 2 : 0 }}>
+      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
         <TextField
-          key="search-input" // Stable key to prevent recreation
+          ref={inputRef}
           fullWidth
-          inputRef={inputRef}
           value={query}
           onChange={handleQueryChange}
           placeholder={placeholder}
           disabled={isLoading}
-          autoComplete="off"
-          autoFocus={false} // Prevent auto-focus conflicts
-          spellCheck={false} // Prevent spellcheck interference
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Search color="action" />
+                <Search />
               </InputAdornment>
             ),
             endAdornment: query && (
               <InputAdornment position="end">
                 <IconButton
-                  size="small"
                   onClick={handleClearSearch}
+                  edge="end"
+                  size="small"
                   disabled={isLoading}
-                  aria-label="Clear search"
-                  tabIndex={-1} // Prevent tab interference
                 >
                   <Clear />
                 </IconButton>
@@ -162,26 +128,22 @@ const SearchBar: React.FC<SearchBarProps> = ({
           }}
           sx={{
             '& .MuiOutlinedInput-root': {
-              bgcolor: 'background.paper',
+              '&:hover fieldset': {
+                borderColor: 'primary.main',
+              },
             },
-            '& .MuiInputBase-input': {
-              // Ensure input stays focusable
-              '&:focus': {
-                outline: 'none',
-              }
-            }
           }}
         />
         
         <IconButton
           onClick={() => setShowFilters(!showFilters)}
+          color={activeFiltersCount > 0 ? 'primary' : 'default'}
+          disabled={isLoading}
           sx={{
-            bgcolor: showFilters ? 'primary.light' : 'background.paper',
-            border: '1px solid',
-            borderColor: showFilters ? 'primary.main' : 'grey.300',
-            '&:hover': {
-              bgcolor: showFilters ? 'primary.main' : 'grey.50',
-            }
+            border: 1,
+            borderColor: activeFiltersCount > 0 ? 'primary.main' : 'grey.300',
+            borderRadius: 1,
+            position: 'relative',
           }}
         >
           <FilterList />
@@ -189,15 +151,15 @@ const SearchBar: React.FC<SearchBarProps> = ({
             <Chip
               label={activeFiltersCount}
               size="small"
+              color="primary"
               sx={{
                 position: 'absolute',
                 top: -8,
                 right: -8,
-                height: 20,
                 minWidth: 20,
+                height: 20,
                 fontSize: '0.75rem',
               }}
-              color="primary"
             />
           )}
         </IconButton>

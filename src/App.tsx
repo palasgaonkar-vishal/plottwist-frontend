@@ -28,14 +28,23 @@ import NotFound from './pages/NotFound';
 
 const AppContent: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { isAuthenticated, accessToken } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, accessToken, isLoading } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     // Validate stored token on app startup
-    if (accessToken && !isAuthenticated) {
-      dispatch(getCurrentUser());
+    if (accessToken && !isAuthenticated && !isLoading) {
+      console.log('Validating stored token on app startup...');
+      dispatch(getCurrentUser())
+        .unwrap()
+        .then(() => {
+          console.log('Token validation successful - user authenticated');
+        })
+        .catch((error) => {
+          console.warn('Token validation failed:', error);
+          // Token is invalid, the authSlice will handle cleanup
+        });
     }
-  }, [dispatch, accessToken, isAuthenticated]);
+  }, [dispatch, accessToken, isAuthenticated, isLoading]);
 
   useEffect(() => {
     // Fix Docker interaction issues
