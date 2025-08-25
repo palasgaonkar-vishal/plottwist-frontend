@@ -24,7 +24,8 @@ const initialState: AuthState = {
   refreshToken: localStorage.getItem('refreshToken'),
   isLoading: false,
   error: null,
-  isAuthenticated: !!localStorage.getItem('accessToken'),
+  // Don't assume authenticated just because token exists - validate first
+  isAuthenticated: false,
 };
 
 // Async thunks for API calls
@@ -201,11 +202,19 @@ const authSlice = createSlice({
       .addCase(getCurrentUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload;
+        state.isAuthenticated = true; // Confirm authentication with valid user data
+        state.error = null;
       })
       .addCase(getCurrentUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
-        // Don't clear auth state here, just the user info
+        // Clear auth state if token is invalid/expired
+        state.user = null;
+        state.accessToken = null;
+        state.refreshToken = null;
+        state.isAuthenticated = false;
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
       });
   },
 });

@@ -31,11 +31,11 @@ const AppContent: React.FC = () => {
   const { isAuthenticated, accessToken } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    // Initialize user data if authenticated
-    if (isAuthenticated && accessToken) {
+    // Validate stored token on app startup
+    if (accessToken && !isAuthenticated) {
       dispatch(getCurrentUser());
     }
-  }, [dispatch, isAuthenticated, accessToken]);
+  }, [dispatch, accessToken, isAuthenticated]);
 
   useEffect(() => {
     // Fix Docker interaction issues
