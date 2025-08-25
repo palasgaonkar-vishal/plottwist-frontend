@@ -1,6 +1,21 @@
 import axios, { AxiosResponse } from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+// Safe environment variable access for Docker compatibility
+const getApiBaseUrl = (): string => {
+  try {
+    // Try to access process.env safely
+    if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) {
+      return process.env.REACT_APP_API_URL;
+    }
+  } catch (error) {
+    console.warn('Process environment not available, using fallback API URL');
+  }
+  
+  // Fallback for Docker or other environments where process is undefined
+  return 'http://localhost:8000/api/v1';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Create axios instance
 const apiClient = axios.create({
