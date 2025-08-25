@@ -10,7 +10,7 @@ import {
   Link as MUILink,
   CircularProgress,
 } from '@mui/material';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { loginUser, clearError } from '../store/slices/authSlice';
 
@@ -156,6 +156,15 @@ const Login: React.FC = () => {
               error={!!emailError}
               helperText={emailError}
               disabled={isLoading}
+              sx={{ 
+                pointerEvents: 'auto',
+                '& .MuiInputBase-root': {
+                  pointerEvents: 'auto',
+                },
+                '& .MuiInputBase-input': {
+                  pointerEvents: 'auto',
+                }
+              }}
             />
             <TextField
               margin="normal"
@@ -171,6 +180,15 @@ const Login: React.FC = () => {
               error={!!passwordError}
               helperText={passwordError}
               disabled={isLoading}
+              sx={{ 
+                pointerEvents: 'auto',
+                '& .MuiInputBase-root': {
+                  pointerEvents: 'auto',
+                },
+                '& .MuiInputBase-input': {
+                  pointerEvents: 'auto',
+                }
+              }}
             />
             <Button
               type="submit"
@@ -186,9 +204,13 @@ const Login: React.FC = () => {
               )}
             </Button>
             <Box textAlign="center">
-              <MUILink component={Link} to="/register" variant="body2">
+              <Button 
+                variant="text"
+                onClick={() => navigate('/register')}
+                sx={{ textTransform: 'none' }}
+              >
                 Don't have an account? Sign up
-              </MUILink>
+              </Button>
             </Box>
           </Box>
         </Paper>

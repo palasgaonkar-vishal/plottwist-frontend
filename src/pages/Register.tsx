@@ -10,7 +10,7 @@ import {
   Link as MUILink,
   CircularProgress,
 } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import { registerUser, clearError } from '../store/slices/authSlice';
 
@@ -188,6 +188,15 @@ const Register: React.FC = () => {
               error={!!errors.name}
               helperText={errors.name}
               disabled={isLoading}
+              sx={{ 
+                pointerEvents: 'auto',
+                '& .MuiInputBase-root': {
+                  pointerEvents: 'auto',
+                },
+                '& .MuiInputBase-input': {
+                  pointerEvents: 'auto',
+                }
+              }}
             />
             <TextField
               margin="normal"
@@ -202,6 +211,15 @@ const Register: React.FC = () => {
               error={!!errors.email}
               helperText={errors.email}
               disabled={isLoading}
+              sx={{ 
+                pointerEvents: 'auto',
+                '& .MuiInputBase-root': {
+                  pointerEvents: 'auto',
+                },
+                '& .MuiInputBase-input': {
+                  pointerEvents: 'auto',
+                }
+              }}
             />
             <TextField
               margin="normal"
@@ -217,6 +235,15 @@ const Register: React.FC = () => {
               error={!!errors.password}
               helperText={errors.password}
               disabled={isLoading}
+              sx={{ 
+                pointerEvents: 'auto',
+                '& .MuiInputBase-root': {
+                  pointerEvents: 'auto',
+                },
+                '& .MuiInputBase-input': {
+                  pointerEvents: 'auto',
+                }
+              }}
             />
             <TextField
               margin="normal"
@@ -231,6 +258,15 @@ const Register: React.FC = () => {
               error={!!errors.confirmPassword}
               helperText={errors.confirmPassword}
               disabled={isLoading}
+              sx={{ 
+                pointerEvents: 'auto',
+                '& .MuiInputBase-root': {
+                  pointerEvents: 'auto',
+                },
+                '& .MuiInputBase-input': {
+                  pointerEvents: 'auto',
+                }
+              }}
             />
             <Button
               type="submit"
@@ -246,9 +282,13 @@ const Register: React.FC = () => {
               )}
             </Button>
             <Box textAlign="center">
-              <MUILink component={Link} to="/login" variant="body2">
+              <Button 
+                variant="text"
+                onClick={() => navigate('/login')}
+                sx={{ textTransform: 'none' }}
+              >
                 Already have an account? Sign in
-              </MUILink>
+              </Button>
             </Box>
           </Box>
         </Paper>

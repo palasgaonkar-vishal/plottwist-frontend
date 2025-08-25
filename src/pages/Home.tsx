@@ -1,10 +1,11 @@
 import React from 'react';
 import { Container, Typography, Box, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../store/hooks';
 
 const Home: React.FC = () => {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const navigate = useNavigate();
 
   const handleTestBackend = async () => {
     try {
@@ -14,6 +15,18 @@ const Home: React.FC = () => {
     } catch (error) {
       alert('Backend connection failed');
     }
+  };
+
+  const handleGetStarted = () => {
+    navigate('/register');
+  };
+
+  const handleSignIn = () => {
+    navigate('/login');
+  };
+
+  const handleGoToDashboard = () => {
+    navigate('/dashboard');
   };
 
   return (
@@ -43,8 +56,7 @@ const Home: React.FC = () => {
             <Button 
               variant="contained" 
               color="primary"
-              component={Link}
-              to="/register"
+              onClick={handleGetStarted}
               size="large"
             >
               Get Started
@@ -52,8 +64,7 @@ const Home: React.FC = () => {
             <Button 
               variant="outlined" 
               color="primary"
-              component={Link}
-              to="/login"
+              onClick={handleSignIn}
               size="large"
             >
               Sign In
@@ -63,8 +74,7 @@ const Home: React.FC = () => {
           <Button 
             variant="contained" 
             color="primary"
-            component={Link}
-            to="/dashboard"
+            onClick={handleGoToDashboard}
             size="large"
           >
             Go to Dashboard

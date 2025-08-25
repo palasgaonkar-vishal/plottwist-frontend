@@ -21,7 +21,7 @@ import {
   Logout,
   Person,
 } from '@mui/icons-material';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { logoutUser } from '../../store/slices/authSlice';
 import { useThemeMode } from '../../contexts/ThemeContext';
@@ -52,6 +52,30 @@ const Header: React.FC = () => {
     navigate('/profile');
   };
 
+  const handleDashboard = () => {
+    navigate('/dashboard');
+  };
+
+  const handleBooks = () => {
+    navigate('/books');
+  };
+
+  const handleFavorites = () => {
+    navigate('/favorites');
+  };
+
+  const handleLogin = () => {
+    navigate('/login');
+  };
+
+  const handleRegister = () => {
+    navigate('/register');
+  };
+
+  const handleBrandClick = () => {
+    navigate(isAuthenticated ? '/dashboard' : '/');
+  };
+
   return (
     <AppBar position="fixed" elevation={1}>
       <Toolbar>
@@ -60,12 +84,12 @@ const Header: React.FC = () => {
           <MenuBook sx={{ mr: 1 }} />
           <Typography
             variant="h6"
-            component={Link}
-            to={isAuthenticated ? '/dashboard' : '/'}
+            onClick={handleBrandClick}
             sx={{ 
               textDecoration: 'none', 
               color: 'inherit',
-              fontWeight: 700
+              fontWeight: 700,
+              cursor: 'pointer'
             }}
           >
             PlotTwist
@@ -77,24 +101,21 @@ const Header: React.FC = () => {
           <Box sx={{ display: 'flex', gap: 2, flexGrow: 1 }}>
             <Button 
               color="inherit" 
-              component={Link} 
-              to="/dashboard"
+              onClick={handleDashboard}
               sx={{ textTransform: 'none' }}
             >
               Dashboard
             </Button>
             <Button 
               color="inherit" 
-              component={Link} 
-              to="/books"
+              onClick={handleBooks}
               sx={{ textTransform: 'none' }}
             >
               Books
             </Button>
             <Button 
               color="inherit" 
-              component={Link} 
-              to="/favorites"
+              onClick={handleFavorites}
               sx={{ textTransform: 'none' }}
             >
               Favorites
@@ -158,8 +179,7 @@ const Header: React.FC = () => {
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button 
               color="inherit" 
-              component={Link} 
-              to="/login"
+              onClick={handleLogin}
               sx={{ textTransform: 'none' }}
             >
               Login
@@ -167,8 +187,7 @@ const Header: React.FC = () => {
             <Button 
               variant="outlined" 
               color="secondary"
-              component={Link} 
-              to="/register"
+              onClick={handleRegister}
               sx={{ 
                 textTransform: 'none',
                 borderColor: 'secondary.main',
