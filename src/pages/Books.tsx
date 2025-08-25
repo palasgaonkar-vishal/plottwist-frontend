@@ -49,49 +49,37 @@ const Books: React.FC = () => {
     loadGenres();
   }, []);
 
-  // Build search parameters
-  const buildSearchParams = useCallback((queryOverride?: string, filtersOverride?: BookFilters): BookSearchParams => {
-    const effectiveQuery = queryOverride !== undefined ? queryOverride : searchQuery;
-    const effectiveFilters = filtersOverride || filters;
-    
-    const params: BookSearchParams = {
-      page: currentPage,
-      per_page: itemsPerPage,
-    };
-
-    if (effectiveQuery.trim()) {
-      params.query = effectiveQuery.trim();
-    }
-
-    if (effectiveFilters.genre) {
-      params.genre_id = effectiveFilters.genre;
-    }
-
-    if (effectiveFilters.minRating) {
-      params.min_rating = effectiveFilters.minRating;
-    }
-
-    if (effectiveFilters.publishedYearStart) {
-      params.published_year_start = effectiveFilters.publishedYearStart;
-    }
-
-    return params;
-  }, [currentPage, itemsPerPage]);
-
-  // Load books with current search parameters - FIXED: Removed searchQuery and filters dependencies
-  const loadBooks = useCallback(async (queryOverride?: string, filtersOverride?: BookFilters) => {
+  // FIXED: Create a stable loadBooks function that doesn't cause re-renders
+  const loadBooksStable = useCallback(async (query: string, bookFilters: BookFilters, page: number = currentPage, perPage: number = itemsPerPage) => {
     setLoading(true);
     setError(null);
 
     try {
-      const params = buildSearchParams(queryOverride, filtersOverride);
+      const params: BookSearchParams = {
+        page: page,
+        per_page: perPage,
+      };
+
+      if (query.trim()) {
+        params.query = query.trim();
+      }
+
+      if (bookFilters.genre) {
+        params.genre_id = bookFilters.genre;
+      }
+
+      if (bookFilters.minRating) {
+        params.min_rating = bookFilters.minRating;
+      }
+
+      if (bookFilters.publishedYearStart) {
+        params.published_year_start = bookFilters.publishedYearStart;
+      }
+
       let response;
 
-      const effectiveQuery = queryOverride !== undefined ? queryOverride : searchQuery;
-      const effectiveFilters = filtersOverride || filters;
-
       // Use search endpoint if there's a query or specific filters, otherwise use list endpoint
-      if (effectiveQuery.trim() || effectiveFilters.genre || effectiveFilters.minRating || effectiveFilters.publishedYearStart) {
+      if (query.trim() || bookFilters.genre || bookFilters.minRating || bookFilters.publishedYearStart) {
         response = await booksAPI.searchBooks(params);
       } else {
         response = await booksAPI.getBooks(params);
@@ -111,25 +99,25 @@ const Books: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [buildSearchParams]); // Only depend on buildSearchParams, not searchQuery or filters
+  }, []); // FIXED: No dependencies - completely stable function
 
-  // FIXED: Debounced search effect - only triggers API calls after user stops typing
+  // FIXED: Debounced search effect with stable function reference
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       console.log('🔍 Debounced search triggered for query:', searchQuery);
-      loadBooks(searchQuery, filters);
+      loadBooksStable(searchQuery, filters, 1); // Always reset to page 1 for new searches
     }, 300); // 300ms debounce
 
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, filters, loadBooks]);
+  }, [searchQuery, filters, loadBooksStable]); // loadBooksStable is now stable
 
-  // FIXED: Load initial books only when pagination changes, not on every search
+  // FIXED: Load initial books only when pagination changes
   useEffect(() => {
-    // Only load initial books on mount or pagination change
+    // Only load initial books on mount or pagination change (when no search/filters)
     if (searchQuery === '' && Object.keys(filters).length === 0) {
-      loadBooks();
+      loadBooksStable('', {}, currentPage, itemsPerPage);
     }
-  }, [loadBooks, currentPage, itemsPerPage]); // Removed searchQuery and filters dependencies
+  }, [currentPage, itemsPerPage, loadBooksStable]); // Removed searchQuery and filters dependencies
 
   // Event handlers
   const handleSearch = useCallback((query: string) => {
@@ -144,6 +132,8 @@ const Books: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    // FIXED: Load books for the new page with current search/filters
+    loadBooksStable(searchQuery, filters, page, itemsPerPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -167,7 +157,7 @@ const Books: React.FC = () => {
 
   // Retry function for error state
   const handleRetry = () => {
-    loadBooks();
+    loadBooksStable(searchQuery, filters, currentPage, itemsPerPage);
   };
 
   return (
