@@ -1,5 +1,6 @@
-# Use Node.js 16 for better compatibility with react-scripts 4.0.3
-FROM node:16.20.2-alpine
+# Use Node.js 14 for maximum compatibility with react-scripts 4.0.3
+# Node 14 doesn't have OpenSSL 3.0 issues that require legacy provider
+FROM node:14-alpine
 
 # Set working directory
 WORKDIR /app
@@ -7,8 +8,8 @@ WORKDIR /app
 # Install system dependencies
 RUN apk add --no-cache curl
 
-# Note: NODE_OPTIONS with --openssl-legacy-provider will be set only at runtime
-# to avoid conflicts during npm install phase
+# Set memory limit for Node.js to prevent out-of-memory issues during build
+ENV NODE_OPTIONS="--max_old_space_size=4096"
 
 # Copy package files
 COPY package*.json ./
@@ -31,5 +32,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:3000 || exit 1
 
-# Start the application with explicit NODE_OPTIONS
-CMD ["sh", "-c", "NODE_OPTIONS='--openssl-legacy-provider --max_old_space_size=4096' npm start"] 
+# Start the application (NODE_OPTIONS already set in ENV)
+CMD ["npm", "start"] 
