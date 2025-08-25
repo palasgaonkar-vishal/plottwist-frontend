@@ -38,6 +38,26 @@ const AppContent: React.FC = () => {
       console.log('🔍 AUTH DEBUG - isAuthenticated:', isAuthenticated);
       console.log('🔍 AUTH DEBUG - isLoading:', isLoading);
       
+      // FIXED: Fallback mechanism - if localStorage has token but Redux doesn't, sync them
+      const localStorageToken = localStorage.getItem('accessToken');
+      if (localStorageToken && !accessToken) {
+        console.log('🔄 SYNC MISMATCH - localStorage has token but Redux doesn\'t, syncing...');
+        console.log('🔄 Re-initializing auth state from localStorage');
+        
+        // Force sync Redux state from localStorage by triggering getCurrentUser
+        try {
+          const result = await dispatch(getCurrentUser()).unwrap();
+          console.log('✅ Auth sync successful:', result.email || result.name);
+          return;
+        } catch (error: any) {
+          console.warn('❌ Auth sync failed:', error);
+          // Clear invalid tokens
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          return;
+        }
+      }
+
       // Use the token from Redux state (which loads from localStorage in initialState)
       if (!accessToken) {
         console.log('🔑 No token found, user needs to login');
@@ -55,17 +75,17 @@ const AppContent: React.FC = () => {
       }
 
       console.log('🔑 Validating stored token...');
-      
+
       try {
         const result = await dispatch(getCurrentUser()).unwrap();
         console.log('✅ Token validation successful:', result.email || result.name);
       } catch (error: any) {
         console.warn('❌ Token validation failed:', error);
-        
+
         // Clear invalid tokens
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        
+
         // Force redirect to login if on protected route
         if (window.location.pathname !== '/login' && window.location.pathname !== '/register' && window.location.pathname !== '/') {
           console.log('🔄 Redirecting to login due to invalid token');

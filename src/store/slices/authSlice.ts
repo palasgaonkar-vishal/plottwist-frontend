@@ -21,14 +21,25 @@ export interface AuthState {
 const initialState: AuthState = {
   user: null,
   accessToken: (() => {
-    const token = localStorage.getItem('accessToken');
-    console.log('🔍 INIT DEBUG - Loading accessToken from localStorage:', !!token);
-    return token;
+    try {
+      const token = localStorage.getItem('accessToken');
+      console.log('🔍 INIT DEBUG - Loading accessToken from localStorage:', !!token);
+      console.log('🔍 INIT DEBUG - Token length:', token ? token.length : 0);
+      return token;
+    } catch (error) {
+      console.warn('🔍 INIT DEBUG - localStorage not available during initialization:', error);
+      return null;
+    }
   })(),
   refreshToken: (() => {
-    const token = localStorage.getItem('refreshToken');
-    console.log('🔍 INIT DEBUG - Loading refreshToken from localStorage:', !!token);
-    return token;
+    try {
+      const token = localStorage.getItem('refreshToken');
+      console.log('🔍 INIT DEBUG - Loading refreshToken from localStorage:', !!token);
+      return token;
+    } catch (error) {
+      console.warn('🔍 INIT DEBUG - localStorage not available during initialization:', error);
+      return null;
+    }
   })(),
   isLoading: false,
   error: null,
@@ -97,12 +108,33 @@ export const logoutUser = createAsyncThunk(
 
 export const getCurrentUser = createAsyncThunk(
   'auth/getCurrentUser',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
+      const state = getState() as { auth: AuthState };
+      let token = state.auth.accessToken;
+      
+      // FIXED: Fallback to localStorage if Redux state doesn't have token
+      if (!token) {
+        token = localStorage.getItem('accessToken');
+        console.log('🔄 GET_USER DEBUG - Using localStorage token as fallback:', !!token);
+      }
+      
+      if (!token) {
+        throw new Error('No access token available');
+      }
+      
       const response = await authAPI.getCurrentUser();
-      return response.data;
+      console.log('✅ GET_USER DEBUG - User data retrieved:', !!response.data);
+      
+      // FIXED: Return token along with user data for proper state sync
+      return {
+        user: response.data,
+        accessToken: token,
+        refreshToken: localStorage.getItem('refreshToken')
+      };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.detail || 'Failed to get user info');
+      console.log('❌ GET_USER DEBUG - Failed to get current user:', error.response?.data?.detail || error.message);
+      return rejectWithValue(error.response?.data?.detail || error.message);
     }
   }
 );
@@ -224,9 +256,21 @@ const authSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(getCurrentUser.fulfilled, (state, action) => {
+        console.log('✅ GET_USER DEBUG - Successfully validated user:', !!action.payload.user);
         state.isLoading = false;
-        state.user = action.payload;
-        state.isAuthenticated = true; // Confirm authentication with valid user data
+        state.user = action.payload.user;
+        
+        // FIXED: Sync tokens in Redux state if they were loaded from localStorage
+        if (action.payload.accessToken) {
+          state.accessToken = action.payload.accessToken;
+          console.log('🔄 GET_USER DEBUG - Synced accessToken to Redux state');
+        }
+        if (action.payload.refreshToken) {
+          state.refreshToken = action.payload.refreshToken;
+          console.log('🔄 GET_USER DEBUG - Synced refreshToken to Redux state');
+        }
+        
+        state.isAuthenticated = true;
         state.error = null;
       })
       .addCase(getCurrentUser.rejected, (state, action) => {
