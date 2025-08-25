@@ -21,6 +21,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Books from './pages/Books';
+import BookDetail from './pages/BookDetail';
 import Profile from './pages/Profile';
 import Favorites from './pages/Favorites';
 import NotFound from './pages/NotFound';
@@ -95,6 +96,14 @@ const AppContent: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <Books />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/books/:bookId"
+              element={
+                <ProtectedRoute>
+                  <BookDetail />
                 </ProtectedRoute>
               }
             />
