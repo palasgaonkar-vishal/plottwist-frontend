@@ -50,42 +50,48 @@ const Books: React.FC = () => {
   }, []);
 
   // Build search parameters
-  const buildSearchParams = useCallback((): BookSearchParams => {
+  const buildSearchParams = useCallback((queryOverride?: string, filtersOverride?: BookFilters): BookSearchParams => {
+    const effectiveQuery = queryOverride !== undefined ? queryOverride : searchQuery;
+    const effectiveFilters = filtersOverride || filters;
+    
     const params: BookSearchParams = {
       page: currentPage,
       per_page: itemsPerPage,
     };
 
-    if (searchQuery.trim()) {
-      params.query = searchQuery.trim();
+    if (effectiveQuery.trim()) {
+      params.query = effectiveQuery.trim();
     }
 
-    if (filters.genre) {
-      params.genre_id = filters.genre;
+    if (effectiveFilters.genre) {
+      params.genre_id = effectiveFilters.genre;
     }
 
-    if (filters.minRating) {
-      params.min_rating = filters.minRating;
+    if (effectiveFilters.minRating) {
+      params.min_rating = effectiveFilters.minRating;
     }
 
-    if (filters.publishedYearStart) {
-      params.published_year_start = filters.publishedYearStart;
+    if (effectiveFilters.publishedYearStart) {
+      params.published_year_start = effectiveFilters.publishedYearStart;
     }
 
     return params;
-  }, [currentPage, itemsPerPage, searchQuery, filters]);
+  }, [currentPage, itemsPerPage]);
 
-  // Load books with current search parameters
-  const loadBooks = useCallback(async () => {
+  // Load books with current search parameters - FIXED: Removed searchQuery and filters dependencies
+  const loadBooks = useCallback(async (queryOverride?: string, filtersOverride?: BookFilters) => {
     setLoading(true);
     setError(null);
 
     try {
-      const params = buildSearchParams();
+      const params = buildSearchParams(queryOverride, filtersOverride);
       let response;
 
+      const effectiveQuery = queryOverride !== undefined ? queryOverride : searchQuery;
+      const effectiveFilters = filtersOverride || filters;
+
       // Use search endpoint if there's a query or specific filters, otherwise use list endpoint
-      if (searchQuery.trim() || filters.genre || filters.minRating || filters.publishedYearStart) {
+      if (effectiveQuery.trim() || effectiveFilters.genre || effectiveFilters.minRating || effectiveFilters.publishedYearStart) {
         response = await booksAPI.searchBooks(params);
       } else {
         response = await booksAPI.getBooks(params);
@@ -105,12 +111,25 @@ const Books: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [buildSearchParams, searchQuery, filters]);
+  }, [buildSearchParams]); // Only depend on buildSearchParams, not searchQuery or filters
 
-  // Load books when dependencies change
+  // FIXED: Debounced search effect - only triggers API calls after user stops typing
   useEffect(() => {
-    loadBooks();
-  }, [loadBooks]);
+    const timeoutId = setTimeout(() => {
+      console.log('🔍 Debounced search triggered for query:', searchQuery);
+      loadBooks(searchQuery, filters);
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery, filters, loadBooks]);
+
+  // FIXED: Load initial books only when pagination changes, not on every search
+  useEffect(() => {
+    // Only load initial books on mount or pagination change
+    if (searchQuery === '' && Object.keys(filters).length === 0) {
+      loadBooks();
+    }
+  }, [loadBooks, currentPage, itemsPerPage]); // Removed searchQuery and filters dependencies
 
   // Event handlers
   const handleSearch = useCallback((query: string) => {

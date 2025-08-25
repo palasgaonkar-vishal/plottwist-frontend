@@ -276,4 +276,15 @@ const SearchBar: React.FC<SearchBarProps> = ({
   );
 };
 
-export default SearchBar; 
+// FIXED: Memoize the component to prevent unnecessary re-renders that cause focus loss
+export default React.memo(SearchBar, (prevProps, nextProps) => {
+  // Custom comparison - only re-render if these specific props change
+  return (
+    prevProps.isLoading === nextProps.isLoading &&
+    prevProps.placeholder === nextProps.placeholder &&
+    prevProps.genres.length === nextProps.genres.length &&
+    prevProps.initialQuery === nextProps.initialQuery &&
+    // Don't compare onSearch/onFiltersChange callbacks - they should be stable from useCallback
+    JSON.stringify(prevProps.initialFilters) === JSON.stringify(nextProps.initialFilters)
+  );
+}); 

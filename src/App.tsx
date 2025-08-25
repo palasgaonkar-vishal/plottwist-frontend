@@ -31,20 +31,46 @@ const AppContent: React.FC = () => {
   const { isAuthenticated, accessToken, isLoading } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    // Validate stored token on app startup
-    if (accessToken && !isAuthenticated && !isLoading) {
-      console.log('Validating stored token on app startup...');
-      dispatch(getCurrentUser())
-        .unwrap()
-        .then(() => {
-          console.log('Token validation successful - user authenticated');
-        })
-        .catch((error) => {
-          console.warn('Token validation failed:', error);
-          // Token is invalid, the authSlice will handle cleanup
-        });
-    }
-  }, [dispatch, accessToken, isAuthenticated, isLoading]);
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('accessToken');
+      
+      if (!token) {
+        console.log('🔑 No token found, user needs to login');
+        return;
+      }
+
+      if (isAuthenticated) {
+        console.log('🔑 User already authenticated');
+        return;
+      }
+
+      if (isLoading) {
+        console.log('🔑 Authentication in progress, waiting...');
+        return;
+      }
+
+      console.log('🔑 Validating stored token...');
+      
+      try {
+        const result = await dispatch(getCurrentUser()).unwrap();
+        console.log('✅ Token validation successful:', result.email || result.name);
+      } catch (error: any) {
+        console.warn('❌ Token validation failed:', error);
+        
+        // Clear invalid tokens
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        
+        // Force redirect to login if on protected route
+        if (window.location.pathname !== '/login' && window.location.pathname !== '/register' && window.location.pathname !== '/') {
+          console.log('🔄 Redirecting to login due to invalid token');
+          window.location.href = '/login';
+        }
+      }
+    };
+
+    initializeAuth();
+  }, [dispatch, isAuthenticated, isLoading]); // FIXED: Removed accessToken dependency to prevent loops
 
   useEffect(() => {
     // Fix Docker interaction issues
