@@ -19,12 +19,28 @@ A modern React frontend for the PlotTwist book review platform, built with TypeS
 - **Form Validation**: Real-time inline validation with user-friendly error messages
 - **JWT Token Management**: Automatic token refresh and API request interceptors
 
+### ✅ Task 005: Book Browsing and Search Frontend (Completed)
+- **Advanced Book Browsing**: Grid and list view modes with responsive design
+- **Real-time Search**: Debounced search by title and author with instant results
+- **Smart Filtering**: Genre, rating, and publication year filters with active indicators
+- **Pagination**: Full pagination controls with customizable items per page
+- **Book Detail Views**: Comprehensive book information pages with ratings and genres
+- **Image Handling**: Book cover display with intelligent fallback for missing images
+- **Loading States**: Smooth loading indicators and error handling throughout
+- **Responsive Design**: Perfect experience across desktop, tablet, and mobile devices
+- **Performance Optimized**: Debounced search, pagination, and efficient API calls
+
 ## 🏗️ Architecture
 
 ### Component Structure
 ```
 src/
 ├── components/
+│   ├── Books/
+│   │   ├── BookCard.tsx         # Book card component (grid/list views)
+│   │   ├── BookCover.tsx        # Book cover with fallback handling
+│   │   ├── Pagination.tsx       # Advanced pagination controls
+│   │   └── SearchBar.tsx        # Real-time search with filters
 │   ├── Navigation/
 │   │   └── Header.tsx           # Main navigation with auth state
 │   ├── Breadcrumbs.tsx          # Dynamic breadcrumb navigation
@@ -35,10 +51,13 @@ src/
 │   ├── Login.tsx                # Login form with validation
 │   ├── Register.tsx             # Registration form with validation
 │   ├── Dashboard.tsx            # User dashboard (authenticated)
-│   ├── Books.tsx                # Books listing (placeholder)
+│   ├── Books.tsx                # Advanced book browsing and search
+│   ├── BookDetail.tsx           # Detailed book information page
 │   ├── Profile.tsx              # User profile management
 │   ├── Favorites.tsx            # User favorites (placeholder)
 │   └── NotFound.tsx             # 404 error page
+├── types/
+│   └── book.ts                  # TypeScript interfaces for books
 ├── store/
 │   ├── index.ts                 # Redux store configuration
 │   ├── hooks.ts                 # Typed Redux hooks
@@ -161,14 +180,46 @@ REACT_APP_API_URL=http://localhost:8000/api/v1
 - Some dependency issues with test runner (to be resolved)
 - Coverage reports available
 
+### Manual Testing Guide
+
+#### Authentication Flow
+1. **Registration**: Navigate to `/register` and create a new account
+2. **Login**: Use created credentials to sign in at `/login`
+3. **Protected Routes**: Verify access to `/dashboard`, `/books`, `/profile`
+4. **Logout**: Test logout functionality from header menu
+
+#### Book Browsing (Authenticated Users)
+1. **Browse Books**: Navigate to `/books` to see all available books
+2. **Search**: Use the search bar to find books by title or author
+3. **Filter**: Apply genre, rating, and publication year filters
+4. **View Modes**: Toggle between grid and list view modes
+5. **Pagination**: Navigate through multiple pages of results
+6. **Book Details**: Click on any book to view detailed information
+
+#### User Experience
+1. **Theme Toggle**: Switch between light and dark themes in header
+2. **Responsive Design**: Test on different screen sizes
+3. **Loading States**: Observe loading indicators during API calls
+4. **Error Handling**: Test with network disconnected to see error states
+
 ## 🔄 API Integration
 
 ### Endpoints Used
+
+#### Authentication
 - `POST /auth/login` - User login
 - `POST /auth/register` - User registration
 - `POST /auth/refresh` - Token refresh
 - `POST /auth/logout` - User logout
 - `GET /auth/me` - Get current user info
+
+#### Books & Content
+- `GET /books` - List books with pagination and filters
+- `GET /books/search` - Search books with advanced filters
+- `GET /books/{id}` - Get detailed book information
+- `GET /books/genres` - Get all available genres
+
+#### System
 - `GET /health` - Backend health check
 
 ### Request/Response Handling

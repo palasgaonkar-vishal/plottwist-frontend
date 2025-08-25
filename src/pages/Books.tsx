@@ -173,7 +173,6 @@ const Books: React.FC = () => {
           onFiltersChange={handleFiltersChange}
           genres={genres}
           isLoading={loading}
-          initialQuery={searchQuery}
           initialFilters={filters}
         />
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   TextField,
@@ -36,6 +36,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [query, setQuery] = useState(initialQuery);
   const [filters, setFilters] = useState<BookFilters>(initialFilters);
   const [showFilters, setShowFilters] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Debounce search input
   useEffect(() => {
@@ -44,12 +45,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [query, onSearch]);
+  }, [query]); // Removed onSearch from dependencies to prevent unnecessary re-runs
 
   // Notify parent when filters change
   useEffect(() => {
     onFiltersChange(filters);
-  }, [filters, onFiltersChange]);
+  }, [filters]); // Removed onFiltersChange from dependencies to prevent unnecessary re-runs
 
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -57,6 +58,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const handleClearSearch = () => {
     setQuery('');
+    // Maintain focus on input after clearing
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   };
 
   const handleFilterChange = (key: keyof BookFilters, value: any) => {
@@ -82,10 +87,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <Box sx={{ display: 'flex', gap: 2, mb: showFilters ? 2 : 0 }}>
         <TextField
           fullWidth
+          inputRef={inputRef}
           value={query}
           onChange={handleQueryChange}
           placeholder={placeholder}
           disabled={isLoading}
+          autoComplete="off"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
