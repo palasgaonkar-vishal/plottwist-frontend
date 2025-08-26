@@ -47,7 +47,7 @@ const AppContent: React.FC = () => {
         // Force sync Redux state from localStorage by triggering getCurrentUser
         try {
           const result = await dispatch(getCurrentUser()).unwrap();
-          console.log('✅ Auth sync successful:', result.user.email || result.user.name);
+          console.log('✅ Auth sync successful:', result.user?.email || result.user?.name || 'User');
           return;
         } catch (error: any) {
           console.warn('❌ Auth sync failed:', error);
@@ -78,7 +78,7 @@ const AppContent: React.FC = () => {
 
       try {
         const result = await dispatch(getCurrentUser()).unwrap();
-        console.log('✅ Token validation successful:', result.user.email || result.user.name);
+        console.log('✅ Token validation successful:', result.user?.email || result.user?.name || 'User');
       } catch (error: any) {
         console.warn('❌ Token validation failed:', error);
 
