@@ -117,152 +117,152 @@ apiClient.interceptors.response.use(
 // Auth API endpoints
 export const authAPI = {
   login: (credentials: { email: string; password: string }): Promise<AxiosResponse<any>> =>
-    publicApiClient.post('/auth/login/', credentials), // FIXED: Added trailing slash
+    publicApiClient.post('/auth/login', credentials), // FIXED: Removed trailing slash
   
   register: (userData: { name: string; email: string; password: string }): Promise<AxiosResponse<any>> =>
-    publicApiClient.post('/auth/register/', userData), // FIXED: Added trailing slash
+    publicApiClient.post('/auth/register', userData), // FIXED: Removed trailing slash
   
   logout: (data: { refresh_token: string }): Promise<AxiosResponse<any>> =>
-    apiClient.post('/auth/logout/', data), // FIXED: Added trailing slash
+    apiClient.post('/auth/logout', data), // FIXED: Removed trailing slash
   
   getCurrentUser: (): Promise<AxiosResponse<any>> =>
-    apiClient.get('/auth/me/'), // FIXED: Added trailing slash
+    apiClient.get('/auth/me'), // FIXED: Removed trailing slash
   
   refresh: (data: { refresh_token: string }): Promise<AxiosResponse<any>> =>
-    publicApiClient.post('/auth/refresh/', data), // FIXED: Added trailing slash
+    publicApiClient.post('/auth/refresh', data), // FIXED: Removed trailing slash
 };
 
 // Books API endpoints
 export const booksAPI = {
   getBooks: (params?: any): Promise<AxiosResponse<any>> =>
-    publicApiClient.get('/books/', { params }), // FIXED: Added trailing slash
+    publicApiClient.get('/books', { params }), // FIXED: Removed trailing slash
 
   searchBooks: (params?: any): Promise<AxiosResponse<any>> =>
-    publicApiClient.get('/books/search/', { params }), // FIXED: Added trailing slash
+    publicApiClient.get('/books/search', { params }), // FIXED: Removed trailing slash
 
   getBook: (id: number): Promise<AxiosResponse<any>> =>
-    publicApiClient.get(`/books/${id}/`), // FIXED: Added trailing slash
+    publicApiClient.get(`/books/${id}`), // FIXED: Removed trailing slash
 
   createBook: (bookData: any): Promise<AxiosResponse<any>> =>
-    apiClient.post('/books/', bookData), // FIXED: Added trailing slash
+    apiClient.post('/books', bookData), // FIXED: Removed trailing slash
 
   updateBook: (id: number, bookData: any): Promise<AxiosResponse<any>> =>
-    apiClient.put(`/books/${id}/`, bookData), // FIXED: Added trailing slash
+    apiClient.put(`/books/${id}`, bookData), // FIXED: Removed trailing slash
 
   deleteBook: (id: number): Promise<AxiosResponse<any>> =>
-    apiClient.delete(`/books/${id}/`), // FIXED: Added trailing slash
+    apiClient.delete(`/books/${id}`), // FIXED: Removed trailing slash
 };
 
 // Genres API endpoints
 export const genresAPI = {
   getGenres: (): Promise<AxiosResponse<any>> =>
-    publicApiClient.get('/books/genres/'), // FIXED: Added trailing slash
+    publicApiClient.get('/books/genres'), // FIXED: Removed trailing slash
 
   getGenre: (id: number): Promise<AxiosResponse<any>> =>
-    publicApiClient.get(`/books/genres/${id}/`), // FIXED: Added trailing slash
+    publicApiClient.get(`/books/genres/${id}`), // FIXED: Removed trailing slash
 };
 
 // Reviews API endpoints
 export const reviewsAPI = {
   // Create a new review
   createReview: (reviewData: ReviewCreate): Promise<AxiosResponse<any>> =>
-    apiClient.post('/reviews/', reviewData),
+    apiClient.post('/reviews', reviewData),
 
   // Get a specific review by ID
   getReview: (reviewId: number): Promise<AxiosResponse<any>> =>
-    publicApiClient.get(`/reviews/${reviewId}/`),
+    publicApiClient.get(`/reviews/${reviewId}`),
 
   // Update an existing review (owner only)
   updateReview: (reviewId: number, reviewData: ReviewUpdate): Promise<AxiosResponse<any>> =>
-    apiClient.put(`/reviews/${reviewId}/`, reviewData),
+    apiClient.put(`/reviews/${reviewId}`, reviewData),
 
   // Delete a review (owner only)
   deleteReview: (reviewId: number): Promise<AxiosResponse<any>> =>
-    apiClient.delete(`/reviews/${reviewId}/`),
+    apiClient.delete(`/reviews/${reviewId}`),
 
   // Get reviews for a specific book (paginated)
   getBookReviews: (bookId: number, params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
-    publicApiClient.get(`/reviews/book/${bookId}/`, { params }),
+    publicApiClient.get(`/reviews/book/${bookId}`, { params }),
 
   // Get rating statistics for a book
   getBookRatingStats: (bookId: number): Promise<AxiosResponse<BookRatingStats>> =>
-    publicApiClient.get(`/reviews/book/${bookId}/stats/`),
+    publicApiClient.get(`/reviews/book/${bookId}/stats`),
 
   // Get current user's reviews
   getUserReviews: (params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
-    apiClient.get('/reviews/user/me/', { params }),
+    apiClient.get('/reviews/user/me', { params }),
 
   // Get current user's review statistics
   getUserReviewStats: (): Promise<AxiosResponse<UserReviewsResponse>> =>
-    apiClient.get('/reviews/user/me/stats/'),
+    apiClient.get('/reviews/user/me/stats'),
 
   // Get current user's review for a specific book
   getUserReviewForBook: (bookId: number): Promise<AxiosResponse<any>> =>
-    apiClient.get(`/reviews/user/me/book/${bookId}/`),
+    apiClient.get(`/reviews/user/me/book/${bookId}`),
 };
 
 // Users API endpoints
 export const usersAPI = {
   // Get current user's basic information
   getCurrentUser: (): Promise<AxiosResponse<any>> =>
-    apiClient.get('/users/me/'),
+    apiClient.get('/users/me'),
 
   // Get current user's full profile with statistics
   getCurrentUserProfile: (): Promise<AxiosResponse<UserProfile>> =>
-    apiClient.get('/users/me/'),
+    apiClient.get('/users/me'),
 
   // Update current user's profile
   updateProfile: (userData: UserUpdate): Promise<AxiosResponse<any>> =>
-    apiClient.put('/users/me/', userData),
+    apiClient.put('/users/me', userData),
 
   // Get current user's reviews
   getUserReviews: (params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
-    apiClient.get('/users/me/reviews/', { params }),
+    apiClient.get('/users/me/reviews', { params }),
 
   // Get user by ID (public info)
   getUserById: (userId: number): Promise<AxiosResponse<any>> =>
-    publicApiClient.get(`/users/${userId}/`),
+    publicApiClient.get(`/users/${userId}`),
 
   // Get user's public profile
   getUserProfile: (userId: number): Promise<AxiosResponse<UserProfile>> =>
-    publicApiClient.get(`/users/${userId}/profile/`),
+    publicApiClient.get(`/users/${userId}/profile`),
 };
 
 // Favorites API endpoints
 export const favoritesAPI = {
   // Add a book to favorites
   addFavorite: (favoriteData: FavoriteCreate): Promise<AxiosResponse<any>> =>
-    apiClient.post('/favorites/', favoriteData),
+    apiClient.post('/favorites', favoriteData),
 
   // Remove a book from favorites
   removeFavorite: (bookId: number): Promise<AxiosResponse<any>> =>
-    apiClient.delete(`/favorites/${bookId}/`),
+    apiClient.delete(`/favorites/${bookId}`),
 
   // Toggle favorite status
   toggleFavorite: (bookId: number): Promise<AxiosResponse<FavoriteToggleResponse>> =>
-    apiClient.post(`/favorites/toggle/${bookId}/`),
+    apiClient.post(`/favorites/toggle/${bookId}`),
 
   // Check if book is favorited
   checkFavoriteStatus: (bookId: number): Promise<AxiosResponse<FavoriteStatus>> =>
-    apiClient.get(`/favorites/check/${bookId}/`),
+    apiClient.get(`/favorites/check/${bookId}`),
 
   // Get current user's favorites
   getUserFavorites: (page?: number, perPage?: number): Promise<AxiosResponse<UserFavoritesResponse>> =>
-    apiClient.get('/favorites/me/', { 
+    apiClient.get('/favorites/me', { 
       params: { page, per_page: perPage } 
     }),
 
   // Get favorites count
   getFavoritesCount: (): Promise<AxiosResponse<FavoriteCount>> =>
-    apiClient.get('/favorites/count/'),
+    apiClient.get('/favorites/count'),
 
   // Get book favorites count
   getBookFavoritesCount: (bookId: number): Promise<AxiosResponse<FavoriteCount>> =>
-    publicApiClient.get(`/favorites/book/${bookId}/count/`),
+    publicApiClient.get(`/favorites/book/${bookId}/count`),
 
   // Get popular books
   getPopularBooks: (limit?: number): Promise<AxiosResponse<PopularBookResponse>> =>
-    publicApiClient.get('/favorites/popular/', { 
+    publicApiClient.get('/favorites/popular', { 
       params: { limit } 
     }),
 };
@@ -271,29 +271,29 @@ export const favoritesAPI = {
 export const recommendationsAPI = {
   // Get content-based recommendations
   getContentBasedRecommendations: (params?: RecommendationParameters): Promise<AxiosResponse<RecommendationResponse>> =>
-    apiClient.get('/recommendations/content-based/', { params }),
+    apiClient.get('/recommendations/content-based', { params }),
 
   // Get popularity-based recommendations
   getPopularityBasedRecommendations: (params?: RecommendationParameters): Promise<AxiosResponse<RecommendationResponse>> =>
-    apiClient.get('/recommendations/popularity-based/', { params }),
+    apiClient.get('/recommendations/popularity-based', { params }),
 
   // Get all recommendation types
   getAllRecommendations: (params?: Omit<RecommendationParameters, 'genres'>): Promise<AxiosResponse<RecommendationListResponse>> =>
-    apiClient.get('/recommendations/all/', { params }),
+    apiClient.get('/recommendations/all', { params }),
 
   // Submit recommendation feedback
   submitFeedback: (feedback: RecommendationFeedbackCreate): Promise<AxiosResponse<any>> =>
-    apiClient.post('/recommendations/feedback/', feedback),
+    apiClient.post('/recommendations/feedback', feedback),
 
   // Get recommendation statistics
   getRecommendationStats: (recommendationType?: RecommendationType): Promise<AxiosResponse<RecommendationStats[]>> =>
-    apiClient.get('/recommendations/stats/', { 
+    apiClient.get('/recommendations/stats', { 
       params: { recommendation_type: recommendationType } 
     }),
 
   // Invalidate user recommendations cache
   invalidateCache: (): Promise<AxiosResponse<any>> =>
-    apiClient.post('/recommendations/invalidate-cache/'),
+    apiClient.post('/recommendations/invalidate-cache'),
 };
 
 export default apiClient; 
