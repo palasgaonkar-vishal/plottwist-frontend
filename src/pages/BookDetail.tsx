@@ -33,6 +33,7 @@ import StarRating from '../components/Reviews/StarRating';
 
 const BookDetail: React.FC = () => {
   const { bookId } = useParams<{ bookId: string }>();
+  const navigate = useNavigate();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
   const [book, setBook] = useState<Book | null>(null);
