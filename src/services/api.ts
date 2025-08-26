@@ -1,17 +1,22 @@
 import axios, { AxiosResponse } from 'axios';
 
-// Safe environment variable access for Docker compatibility
+// FIXED: Robust environment variable access for Docker/browser environments
 const getApiBaseUrl = (): string => {
+  // Use window object in browser environments to access environment variables
+  if (typeof window !== 'undefined' && (window as any).__ENV__) {
+    return (window as any).__ENV__.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+  }
+  
+  // Fallback to process.env with safe access
   try {
-    // Try to access process.env safely
     if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) {
       return process.env.REACT_APP_API_URL;
     }
   } catch (error) {
-    console.warn('Process environment not available, using fallback API URL');
+    console.warn('Could not access process.env:', error);
   }
   
-  // Fallback for Docker or other environments where process is undefined
+  // Default fallback for Docker environments
   return 'http://localhost:8000/api/v1';
 };
 
