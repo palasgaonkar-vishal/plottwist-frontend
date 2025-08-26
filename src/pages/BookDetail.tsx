@@ -25,39 +25,63 @@ import { Book } from '../types/book';
 import { booksAPI } from '../services/api';
 import BookCover from '../components/Books/BookCover';
 import BreadcrumbsNav from '../components/Breadcrumbs';
+import ReviewList from '../components/Reviews/ReviewList';
+import { useAppSelector } from '../store/hooks';
+import { BookRatingStats } from '../types/review';
+import { reviewsAPI } from '../services/api';
+import StarRating from '../components/Reviews/StarRating';
 
 const BookDetail: React.FC = () => {
   const { bookId } = useParams<{ bookId: string }>();
-  const navigate = useNavigate();
-  
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+
   const [book, setBook] = useState<Book | null>(null);
+  const [ratingStats, setRatingStats] = useState<BookRatingStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string>('');
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
-    const loadBook = async () => {
+    const loadBookData = async () => {
       if (!bookId) {
-        setError('Book ID is required');
+        setError('Invalid book ID');
         setLoading(false);
         return;
       }
 
       try {
         setLoading(true);
-        setError(null);
+        setError('');
+
+        // Load book details and rating statistics in parallel
+        const [bookResponse, statsResponse] = await Promise.all([
+          booksAPI.getBook(parseInt(bookId)),
+          reviewsAPI.getBookRatingStats(parseInt(bookId)).catch(() => null) // Don't fail if stats unavailable
+        ]);
+
+        setBook(bookResponse.data);
         
-        const response = await booksAPI.getBook(parseInt(bookId));
-        setBook(response.data);
+        if (statsResponse) {
+          setRatingStats(statsResponse.data);
+        }
+
+        // TODO: Load favorite status when favorites system is implemented
+        // setIsFavorite(false);
+
       } catch (err: any) {
         console.error('Error loading book:', err);
-        setError(err.response?.data?.detail || 'Failed to load book details. Please try again.');
+        
+        if (err.response?.status === 404) {
+          setError('Book not found');
+        } else {
+          setError('Failed to load book details. Please try again.');
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    loadBook();
+    loadBookData();
   }, [bookId]);
 
   const handleBack = () => {
@@ -209,15 +233,25 @@ const BookDetail: React.FC = () => {
                   by {book.author}
                 </Typography>
 
-                {/* Rating */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-                  <Rating value={book.average_rating} precision={0.1} readOnly />
-                  <Typography variant="body1">
-                    {book.average_rating.toFixed(1)} out of 5
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    ({book.total_reviews} review{book.total_reviews !== 1 ? 's' : ''})
-                  </Typography>
+                {/* Rating and Reviews */}
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  {ratingStats && ratingStats.total_reviews > 0 ? (
+                    <>
+                      <StarRating
+                        value={ratingStats.average_rating || 0}
+                        readOnly
+                        size="medium"
+                        showValue={true}
+                      />
+                      <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+                        ({ratingStats.total_reviews} review{ratingStats.total_reviews !== 1 ? 's' : ''})
+                      </Typography>
+                    </>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      No reviews yet
+                    </Typography>
+                  )}
                 </Box>
 
                 {/* Action Buttons */}
@@ -302,14 +336,14 @@ const BookDetail: React.FC = () => {
           </Box>
         </Paper>
 
-        {/* Reviews Section Placeholder */}
+        {/* Reviews Section */}
         <Paper sx={{ p: 4, mt: 4 }}>
-          <Typography variant="h5" gutterBottom>
-            Reviews
-          </Typography>
-          <Typography variant="body1" color="text.secondary">
-            Reviews functionality will be implemented in future tasks.
-          </Typography>
+          <ReviewList
+            bookId={book.id}
+            bookTitle={book.title}
+            showCreateButton={true}
+            mode="book"
+          />
         </Paper>
       </Box>
     </Container>

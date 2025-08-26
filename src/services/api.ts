@@ -1,4 +1,12 @@
 import axios, { AxiosResponse } from 'axios';
+import {
+  ReviewCreate,
+  ReviewUpdate,
+  ReviewListResponse,
+  BookRatingStats,
+  UserReviewsResponse,
+  ReviewListParams
+} from '../types/review';
 
 // FIXED: Robust environment variable access for Docker/browser environments
 const getApiBaseUrl = (): string => {
@@ -135,6 +143,45 @@ export const genresAPI = {
 
   getGenre: (id: number): Promise<AxiosResponse<any>> =>
     publicApiClient.get(`/books/genres/${id}/`), // FIXED: Added trailing slash
+};
+
+// Reviews API endpoints
+export const reviewsAPI = {
+  // Create a new review
+  createReview: (reviewData: ReviewCreate): Promise<AxiosResponse<any>> =>
+    apiClient.post('/reviews/', reviewData),
+
+  // Get a specific review by ID
+  getReview: (reviewId: number): Promise<AxiosResponse<any>> =>
+    publicApiClient.get(`/reviews/${reviewId}/`),
+
+  // Update an existing review (owner only)
+  updateReview: (reviewId: number, reviewData: ReviewUpdate): Promise<AxiosResponse<any>> =>
+    apiClient.put(`/reviews/${reviewId}/`, reviewData),
+
+  // Delete a review (owner only)
+  deleteReview: (reviewId: number): Promise<AxiosResponse<any>> =>
+    apiClient.delete(`/reviews/${reviewId}/`),
+
+  // Get reviews for a specific book (paginated)
+  getBookReviews: (bookId: number, params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
+    publicApiClient.get(`/reviews/book/${bookId}/`, { params }),
+
+  // Get rating statistics for a book
+  getBookRatingStats: (bookId: number): Promise<AxiosResponse<BookRatingStats>> =>
+    publicApiClient.get(`/reviews/book/${bookId}/stats/`),
+
+  // Get current user's reviews
+  getUserReviews: (params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
+    apiClient.get('/reviews/user/me/', { params }),
+
+  // Get current user's review statistics
+  getUserReviewStats: (): Promise<AxiosResponse<UserReviewsResponse>> =>
+    apiClient.get('/reviews/user/me/stats/'),
+
+  // Get current user's review for a specific book
+  getUserReviewForBook: (bookId: number): Promise<AxiosResponse<any>> =>
+    apiClient.get(`/reviews/user/me/book/${bookId}/`),
 };
 
 export default apiClient; 
