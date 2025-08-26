@@ -94,7 +94,9 @@ apiClient.interceptors.response.use(
             refresh_token: refreshToken,
           });
 
-          const { access_token, refresh_token } = response.data;
+          // FIXED: Handle nested tokens structure
+          const tokens = response.data.tokens || response.data;
+          const { access_token, refresh_token } = tokens;
           localStorage.setItem('accessToken', access_token);
           localStorage.setItem('refreshToken', refresh_token);
 
