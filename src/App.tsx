@@ -24,6 +24,7 @@ import Books from './pages/Books';
 import BookDetail from './pages/BookDetail';
 import Profile from './pages/Profile';
 import Favorites from './pages/Favorites';
+import Recommendations from './pages/Recommendations';
 import NotFound from './pages/NotFound';
 
 const AppContent: React.FC = () => {

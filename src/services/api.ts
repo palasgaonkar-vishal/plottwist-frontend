@@ -16,6 +16,14 @@ import {
   FavoriteCount,
   PopularBookResponse 
 } from '../types/favorite';
+import {
+  RecommendationFeedbackCreate,
+  RecommendationResponse,
+  RecommendationListResponse,
+  RecommendationParameters,
+  RecommendationStats,
+  RecommendationType
+} from '../types/recommendation';
 
 // FIXED: Robust environment variable access for Docker/browser environments
 const getApiBaseUrl = (): string => {
@@ -257,6 +265,35 @@ export const favoritesAPI = {
     publicApiClient.get('/favorites/popular/', { 
       params: { limit } 
     }),
+};
+
+// Recommendations API endpoints
+export const recommendationsAPI = {
+  // Get content-based recommendations
+  getContentBasedRecommendations: (params?: RecommendationParameters): Promise<AxiosResponse<RecommendationResponse>> =>
+    apiClient.get('/recommendations/content-based/', { params }),
+
+  // Get popularity-based recommendations
+  getPopularityBasedRecommendations: (params?: RecommendationParameters): Promise<AxiosResponse<RecommendationResponse>> =>
+    apiClient.get('/recommendations/popularity-based/', { params }),
+
+  // Get all recommendation types
+  getAllRecommendations: (params?: Omit<RecommendationParameters, 'genres'>): Promise<AxiosResponse<RecommendationListResponse>> =>
+    apiClient.get('/recommendations/all/', { params }),
+
+  // Submit recommendation feedback
+  submitFeedback: (feedback: RecommendationFeedbackCreate): Promise<AxiosResponse<any>> =>
+    apiClient.post('/recommendations/feedback/', feedback),
+
+  // Get recommendation statistics
+  getRecommendationStats: (recommendationType?: RecommendationType): Promise<AxiosResponse<RecommendationStats[]>> =>
+    apiClient.get('/recommendations/stats/', { 
+      params: { recommendation_type: recommendationType } 
+    }),
+
+  // Invalidate user recommendations cache
+  invalidateCache: (): Promise<AxiosResponse<any>> =>
+    apiClient.post('/recommendations/invalidate-cache/'),
 };
 
 export default apiClient; 

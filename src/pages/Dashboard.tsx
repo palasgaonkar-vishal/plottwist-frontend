@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -16,9 +16,18 @@ import {
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { useAppSelector } from '../store/hooks';
+import RecommendationSection from '../components/Recommendations/RecommendationSection';
+import { recommendationsAPI } from '../services/api';
+import { 
+  RecommendationListResponse, 
+  RecommendationFeedbackCreate, 
+  RecommendationType 
+} from '../types/recommendation';
 
 const Dashboard: React.FC = () => {
-  const { user } = useAppSelector((state) => state.auth);
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  const [recommendations, setRecommendations] = useState<RecommendationListResponse | null>(null);
+  const [recommendationsLoading, setRecommendationsLoading] = useState(false);
 
   const quickActions = [
     {
