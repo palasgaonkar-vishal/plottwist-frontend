@@ -7,6 +7,15 @@ import {
   UserReviewsResponse,
   ReviewListParams
 } from '../types/review';
+import { UserProfile, UserUpdate } from '../types/user';
+import { 
+  FavoriteCreate, 
+  FavoriteToggleResponse, 
+  UserFavoritesResponse, 
+  FavoriteStatus, 
+  FavoriteCount,
+  PopularBookResponse 
+} from '../types/favorite';
 
 // FIXED: Robust environment variable access for Docker/browser environments
 const getApiBaseUrl = (): string => {
@@ -182,6 +191,72 @@ export const reviewsAPI = {
   // Get current user's review for a specific book
   getUserReviewForBook: (bookId: number): Promise<AxiosResponse<any>> =>
     apiClient.get(`/reviews/user/me/book/${bookId}/`),
+};
+
+// Users API endpoints
+export const usersAPI = {
+  // Get current user's basic information
+  getCurrentUser: (): Promise<AxiosResponse<any>> =>
+    apiClient.get('/users/me/'),
+
+  // Get current user's full profile with statistics
+  getCurrentUserProfile: (): Promise<AxiosResponse<UserProfile>> =>
+    apiClient.get('/users/me/profile/'),
+
+  // Update current user's profile
+  updateProfile: (userData: UserUpdate): Promise<AxiosResponse<any>> =>
+    apiClient.put('/users/me/', userData),
+
+  // Get current user's reviews
+  getUserReviews: (params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
+    apiClient.get('/users/me/reviews/', { params }),
+
+  // Get user by ID (public info)
+  getUserById: (userId: number): Promise<AxiosResponse<any>> =>
+    publicApiClient.get(`/users/${userId}/`),
+
+  // Get user's public profile
+  getUserProfile: (userId: number): Promise<AxiosResponse<UserProfile>> =>
+    publicApiClient.get(`/users/${userId}/profile/`),
+};
+
+// Favorites API endpoints
+export const favoritesAPI = {
+  // Add a book to favorites
+  addFavorite: (favoriteData: FavoriteCreate): Promise<AxiosResponse<any>> =>
+    apiClient.post('/favorites/', favoriteData),
+
+  // Remove a book from favorites
+  removeFavorite: (bookId: number): Promise<AxiosResponse<any>> =>
+    apiClient.delete(`/favorites/${bookId}/`),
+
+  // Toggle favorite status
+  toggleFavorite: (bookId: number): Promise<AxiosResponse<FavoriteToggleResponse>> =>
+    apiClient.post(`/favorites/toggle/${bookId}/`),
+
+  // Check if book is favorited
+  checkFavoriteStatus: (bookId: number): Promise<AxiosResponse<FavoriteStatus>> =>
+    apiClient.get(`/favorites/check/${bookId}/`),
+
+  // Get current user's favorites
+  getUserFavorites: (page?: number, perPage?: number): Promise<AxiosResponse<UserFavoritesResponse>> =>
+    apiClient.get('/favorites/me/', { 
+      params: { page, per_page: perPage } 
+    }),
+
+  // Get favorites count
+  getFavoritesCount: (): Promise<AxiosResponse<FavoriteCount>> =>
+    apiClient.get('/favorites/count/'),
+
+  // Get book favorites count
+  getBookFavoritesCount: (bookId: number): Promise<AxiosResponse<FavoriteCount>> =>
+    publicApiClient.get(`/favorites/book/${bookId}/count/`),
+
+  // Get popular books
+  getPopularBooks: (limit?: number): Promise<AxiosResponse<PopularBookResponse>> =>
+    publicApiClient.get('/favorites/popular/', { 
+      params: { limit } 
+    }),
 };
 
 export default apiClient; 
