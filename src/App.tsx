@@ -34,61 +34,32 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      // FIXED: Use Redux state token instead of localStorage directly
-      console.log('🔍 AUTH DEBUG - Redux accessToken:', !!accessToken);
-      console.log('🔍 AUTH DEBUG - localStorage token:', !!localStorage.getItem('accessToken'));
-      console.log('🔍 AUTH DEBUG - isAuthenticated:', isAuthenticated);
-      console.log('🔍 AUTH DEBUG - isLoading:', isLoading);
+      console.log('🔍 AUTH DEBUG - Redux state:', { isAuthenticated, hasToken: !!accessToken, isLoading });
       
-      // FIXED: Don't trigger sync if user is already authenticated
-      if (isAuthenticated) {
-        console.log('🔑 User already authenticated, skipping auth sync');
+      // If already authenticated or loading, skip
+      if (isAuthenticated || isLoading) {
+        console.log('🔑 Auth already initialized or in progress');
         return;
       }
 
-      if (isLoading) {
-        console.log('🔑 Authentication in progress, waiting...');
-        return;
-      }
-      
-      // FIXED: Fallback mechanism - if localStorage has token but Redux doesn't, sync them
-      const localStorageToken = localStorage.getItem('accessToken');
-      if (localStorageToken && !accessToken) {
-        console.log('🔄 SYNC MISMATCH - localStorage has token but Redux doesn\'t, syncing...');
-        console.log('🔄 Re-initializing auth state from localStorage');
-        
-        // Force sync Redux state from localStorage by triggering getCurrentUser
-        try {
-          const result = await dispatch(getCurrentUser()).unwrap();
-          console.log('✅ Auth sync successful:', result.user?.email || result.user?.name || 'User');
-          return;
-        } catch (error: any) {
-          console.warn('❌ Auth sync failed:', error);
-          // Clear invalid tokens
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          return;
-        }
-      }
-
-      // Use the token from Redux state (which loads from localStorage in initialState)
+      // If no token, user needs to login
       if (!accessToken) {
         console.log('🔑 No token found, user needs to login');
         return;
       }
 
       console.log('🔑 Validating stored token...');
-
+      
       try {
         const result = await dispatch(getCurrentUser()).unwrap();
         console.log('✅ Token validation successful:', result.user?.email || result.user?.name || 'User');
       } catch (error: any) {
         console.warn('❌ Token validation failed:', error);
-
-        // Clear invalid tokens
+        
+        // Clear invalid tokens - the authSlice will handle state cleanup
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-
+        
         // Force redirect to login if on protected route
         if (window.location.pathname !== '/login' && window.location.pathname !== '/register' && window.location.pathname !== '/') {
           console.log('🔄 Redirecting to login due to invalid token');
@@ -98,12 +69,15 @@ const AppContent: React.FC = () => {
     };
 
     initializeAuth();
-  }, [dispatch, isAuthenticated, isLoading, accessToken]); // FIXED: Added accessToken back as dependency
+  }, [dispatch, isAuthenticated, isLoading, accessToken]);
 
   useEffect(() => {
     // Fix Docker interaction issues
     fixDockerEvents();
     const observer = startEventFixObserver();
+    
+    // FIXED: Call ResizeObserver error suppression
+    resizeObserverErrorSuppress();
     
     return () => {
       observer.disconnect();

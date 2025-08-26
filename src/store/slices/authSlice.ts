@@ -43,8 +43,19 @@ const initialState: AuthState = {
   })(),
   isLoading: false,
   error: null,
-  // Don't assume authenticated just because token exists - validate first
-  isAuthenticated: false,
+  // FIXED: Set authenticated to true if both tokens exist
+  isAuthenticated: (() => {
+    try {
+      const accessToken = localStorage.getItem('accessToken');
+      const refreshToken = localStorage.getItem('refreshToken');
+      const hasTokens = !!(accessToken && refreshToken);
+      console.log('🔍 INIT DEBUG - Setting initial isAuthenticated:', hasTokens);
+      return hasTokens;
+    } catch (error) {
+      console.warn('🔍 INIT DEBUG - localStorage not available for auth check:', error);
+      return false;
+    }
+  })(),
 };
 
 // Async thunks for API calls
