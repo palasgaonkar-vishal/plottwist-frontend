@@ -71,7 +71,9 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
     setIsLoading(true);
 
     try {
+      console.log('🔄 Toggling favorite for book:', bookId);
       const response = await favoritesAPI.toggleFavorite(bookId);
+      console.log('✅ Toggle favorite response:', response.data);
       const newFavoriteStatus = response.data.is_favorite;
       
       setIsFavorite(newFavoriteStatus);
@@ -85,7 +87,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
       }
 
     } catch (error: any) {
-      console.error('Error toggling favorite:', error);
+      console.error('❌ Error toggling favorite:', error);
       
       let errorMessage = 'Failed to update favorite status';
       if (error.response?.status === 404) {

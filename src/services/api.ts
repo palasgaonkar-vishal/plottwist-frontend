@@ -209,7 +209,7 @@ export const usersAPI = {
 
   // Get current user's full profile with statistics
   getCurrentUserProfile: (): Promise<AxiosResponse<UserProfile>> =>
-    apiClient.get('/users/me/profile/'),
+    apiClient.get('/users/me/'),
 
   // Update current user's profile
   updateProfile: (userData: UserUpdate): Promise<AxiosResponse<any>> =>

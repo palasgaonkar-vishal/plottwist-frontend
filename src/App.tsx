@@ -8,6 +8,7 @@ import { CustomThemeProvider } from './contexts/ThemeContext';
 import { useAppDispatch, useAppSelector } from './store/hooks';
 import { getCurrentUser } from './store/slices/authSlice';
 import { fixDockerEvents, startEventFixObserver } from './utils/eventFixer';
+import { resizeObserverErrorSuppress } from './utils/errorSuppress';
 import './App.css';
 
 // Components
@@ -182,6 +183,15 @@ const AppContent: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <Favorites />
+                </ProtectedRoute>
+              }
+            />
+            
+            <Route
+              path="/recommendations"
+              element={
+                <ProtectedRoute>
+                  <Recommendations />
                 </ProtectedRoute>
               }
             />
