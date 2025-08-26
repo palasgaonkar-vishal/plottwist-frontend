@@ -208,13 +208,24 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
+        console.log('🔍 REGISTER DEBUG - Registration successful, storing tokens:', {
+          access_token: !!action.payload.access_token,
+          refresh_token: !!action.payload.refresh_token,
+          user: !!action.payload.user
+        });
+        
         state.isLoading = false;
         state.user = action.payload.user;
         state.accessToken = action.payload.access_token;
         state.refreshToken = action.payload.refresh_token;
         state.isAuthenticated = true;
+        
+        // Store tokens in localStorage
         localStorage.setItem('accessToken', action.payload.access_token);
         localStorage.setItem('refreshToken', action.payload.refresh_token);
+        
+        console.log('✅ REGISTER DEBUG - Tokens stored in localStorage');
+        console.log('🔍 REGISTER DEBUG - User is now authenticated:', true);
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;

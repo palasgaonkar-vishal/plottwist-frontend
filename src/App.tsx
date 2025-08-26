@@ -38,6 +38,17 @@ const AppContent: React.FC = () => {
       console.log('🔍 AUTH DEBUG - isAuthenticated:', isAuthenticated);
       console.log('🔍 AUTH DEBUG - isLoading:', isLoading);
       
+      // FIXED: Don't trigger sync if user is already authenticated
+      if (isAuthenticated) {
+        console.log('🔑 User already authenticated, skipping auth sync');
+        return;
+      }
+
+      if (isLoading) {
+        console.log('🔑 Authentication in progress, waiting...');
+        return;
+      }
+      
       // FIXED: Fallback mechanism - if localStorage has token but Redux doesn't, sync them
       const localStorageToken = localStorage.getItem('accessToken');
       if (localStorageToken && !accessToken) {
@@ -61,16 +72,6 @@ const AppContent: React.FC = () => {
       // Use the token from Redux state (which loads from localStorage in initialState)
       if (!accessToken) {
         console.log('🔑 No token found, user needs to login');
-        return;
-      }
-
-      if (isAuthenticated) {
-        console.log('🔑 User already authenticated');
-        return;
-      }
-
-      if (isLoading) {
-        console.log('🔑 Authentication in progress, waiting...');
         return;
       }
 
