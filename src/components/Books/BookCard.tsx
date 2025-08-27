@@ -14,6 +14,7 @@ import { Visibility, Info } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Book, ViewMode } from '../../types/book';
 import BookCover from './BookCover';
+import FavoriteButton from '../User/FavoriteButton'; // ADDED: Import FavoriteButton
 
 interface BookCardProps {
   book: Book;
@@ -58,7 +59,7 @@ const BookCard: React.FC<BookCardProps> = ({
           },
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', p: 2, position: 'relative' }}>
           <BookCover
             coverUrl={book.cover_url}
             title={book.title}
@@ -66,6 +67,14 @@ const BookCard: React.FC<BookCardProps> = ({
             width={80}
             height={120}
           />
+          {/* Favorite Button Overlay for List View */}
+          <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+            <FavoriteButton
+              bookId={book.id}
+              bookTitle={book.title}
+              size="small"
+            />
+          </Box>
         </Box>
         
         <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
@@ -152,7 +161,7 @@ const BookCard: React.FC<BookCardProps> = ({
         },
       }}
     >
-      <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ p: 2, display: 'flex', justifyContent: 'center', position: 'relative' }}>
         <BookCover
           coverUrl={book.cover_url}
           title={book.title}
@@ -161,6 +170,14 @@ const BookCard: React.FC<BookCardProps> = ({
           height={200}
           sx={{ cursor: 'pointer' }}
         />
+        {/* Favorite Button Overlay */}
+        <Box sx={{ position: 'absolute', top: 16, right: 16 }}>
+          <FavoriteButton
+            bookId={book.id}
+            bookTitle={book.title}
+            size="small"
+          />
+        </Box>
       </Box>
       
       <CardContent sx={{ flexGrow: 1, pt: 1 }}>

@@ -30,6 +30,7 @@ import { useAppSelector } from '../store/hooks';
 import { BookRatingStats } from '../types/review';
 import { reviewsAPI } from '../services/api';
 import StarRating from '../components/Reviews/StarRating';
+import { favoritesAPI } from '../services/api';
 
 const BookDetail: React.FC = () => {
   const { bookId } = useParams<{ bookId: string }>();
@@ -42,48 +43,51 @@ const BookDetail: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [isFavorite, setIsFavorite] = useState(false);
 
+  // Load book details and favorite status
   useEffect(() => {
-    const loadBookData = async () => {
-      if (!bookId) {
-        setError('Invalid book ID');
-        setLoading(false);
-        return;
-      }
+    const loadBookDetails = async () => {
+      if (!bookId) return;
 
       try {
         setLoading(true);
         setError('');
 
-        // Load book details and rating statistics in parallel
-        const [bookResponse, statsResponse] = await Promise.all([
-          booksAPI.getBook(parseInt(bookId)),
-          reviewsAPI.getBookRatingStats(parseInt(bookId)).catch(() => null) // Don't fail if stats unavailable
-        ]);
+        const response = await booksAPI.getBook(Number(bookId));
+        setBook(response.data);
 
-        setBook(bookResponse.data);
-        
-        if (statsResponse) {
+        // Load rating statistics
+        try {
+          const statsResponse = await reviewsAPI.getBookRatingStats(Number(bookId));
           setRatingStats(statsResponse.data);
+        } catch (statsError) {
+          console.error('Error loading rating stats:', statsError);
+          // Don't fail the whole page if stats unavailable
         }
 
-        // TODO: Load favorite status when favorites system is implemented
-        // setIsFavorite(false);
+        // Load favorite status if user is authenticated
+        if (isAuthenticated) {
+          try {
+            const favoriteResponse = await favoritesAPI.checkFavoriteStatus(Number(bookId));
+            setIsFavorite(favoriteResponse.data.is_favorite);
+            console.log('📖 Initial favorite status:', favoriteResponse.data.is_favorite);
+          } catch (favError) {
+            console.error('Error loading favorite status:', favError);
+            setIsFavorite(false);
+          }
+        } else {
+          setIsFavorite(false);
+        }
 
       } catch (err: any) {
-        console.error('Error loading book:', err);
-        
-        if (err.response?.status === 404) {
-          setError('Book not found');
-        } else {
-          setError('Failed to load book details. Please try again.');
-        }
+        console.error('Error loading book details:', err);
+        setError('Failed to load book details. Please try again.');
       } finally {
         setLoading(false);
       }
     };
 
-    loadBookData();
-  }, [bookId]);
+    loadBookDetails();
+  }, [bookId, isAuthenticated]); // Added isAuthenticated to dependencies
 
   const handleBack = () => {
     navigate('/books');
@@ -102,9 +106,35 @@ const BookDetail: React.FC = () => {
     }
   };
 
-  const handleFavoriteToggle = () => {
-    // TODO: Implement favorite functionality
-    setIsFavorite(!isFavorite);
+  const handleFavoriteToggle = async () => {
+    if (!isAuthenticated) {
+      console.log('User not authenticated, cannot toggle favorite');
+      return;
+    }
+
+    try {
+      console.log('🔄 Toggling favorite for book:', bookId);
+      const response = await favoritesAPI.toggleFavorite(Number(bookId));
+      console.log('✅ Toggle favorite response:', response.data);
+      
+      setIsFavorite(response.data.is_favorite);
+      
+      // Optional: Show success message
+      console.log(response.data.message);
+      
+    } catch (error: any) {
+      console.error('❌ Error toggling favorite:', error);
+      
+      let errorMessage = 'Failed to update favorite status';
+      if (error.response?.status === 404) {
+        errorMessage = 'Book not found';
+      } else if (error.response?.status === 401) {
+        errorMessage = 'Please log in to add favorites';
+      }
+      
+      console.error(errorMessage);
+      // Optional: Show error message to user
+    }
   };
 
   const formatPublishedYear = (year?: number) => {
