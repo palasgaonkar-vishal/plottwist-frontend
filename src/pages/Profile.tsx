@@ -26,7 +26,6 @@ import {
   LocationOn,
   Language,
   CalendarToday,
-  TrendingUp,
 } from '@mui/icons-material';
 import { formatDistanceToNow } from 'date-fns';
 import { useAppSelector } from '../store/hooks';
@@ -156,18 +155,12 @@ const Profile: React.FC = () => {
         value: profile.stats.total_favorites,
         sublabel: 'books marked',
       },
-      {
-        icon: <TrendingUp color="success" />,
-        label: 'Books Reviewed',
-        value: profile.stats.books_reviewed,
-        sublabel: 'unique books',
-      },
     ];
 
     return (
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {stats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
+          <Grid item xs={12} sm={6} md={4} key={index}>
             <Card sx={{ textAlign: 'center', height: '100%' }}>
               <CardContent>
                 <Box sx={{ mb: 2 }}>

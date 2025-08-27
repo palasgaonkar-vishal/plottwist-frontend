@@ -120,14 +120,6 @@ const Dashboard: React.FC = () => {
         ) : (
           <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
             <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
-              <Typography variant="h4" color="primary">
-                {profile?.stats.books_reviewed || 0}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Books Reviewed
-              </Typography>
-            </Box>
-            <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
               <Typography variant="h4" color="secondary">
                 {profile?.stats.total_reviews || 0}
               </Typography>
