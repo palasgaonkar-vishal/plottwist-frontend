@@ -7,27 +7,59 @@ import {
   CardContent,
   Button,
   Paper,
+  CircularProgress,
+  Alert,
 } from '@mui/material';
 import {
   MenuBook,
   Favorite,
   RateReview,
   AutoAwesome,
+  Star,
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { useAppSelector } from '../store/hooks';
 import RecommendationSection from '../components/Recommendations/RecommendationSection';
-import { recommendationsAPI } from '../services/api';
+import { recommendationsAPI, usersAPI } from '../services/api'; // ADDED: usersAPI import
 import { 
   RecommendationListResponse, 
   RecommendationFeedbackCreate, 
   RecommendationType 
 } from '../types/recommendation';
+import { UserProfile } from '../types/user'; // ADDED: UserProfile type
 
 const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const [recommendations, setRecommendations] = useState<RecommendationListResponse | null>(null);
   const [recommendationsLoading, setRecommendationsLoading] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null); // ADDED: Profile state
+  const [profileLoading, setProfileLoading] = useState(true); // ADDED: Profile loading state
+  const [profileError, setProfileError] = useState<string>(''); // ADDED: Profile error state
+
+  // ADDED: Load user profile statistics
+  const loadProfile = useCallback(async () => {
+    if (!isAuthenticated) {
+      setProfileLoading(false);
+      return;
+    }
+
+    try {
+      setProfileLoading(true);
+      setProfileError('');
+      const response = await usersAPI.getCurrentUserProfile();
+      setProfile(response.data);
+    } catch (err: any) {
+      console.error('Error loading profile stats:', err);
+      setProfileError('Failed to load reading statistics');
+    } finally {
+      setProfileLoading(false);
+    }
+  }, [isAuthenticated]);
+
+  // ADDED: Load profile on component mount
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
   const quickActions = [
     {
@@ -76,40 +108,51 @@ const Dashboard: React.FC = () => {
         <Typography variant="h5" gutterBottom>
           Your Reading Journey
         </Typography>
-        <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-          <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
-            <Typography variant="h4" color="primary">
-              0
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Books Read
-            </Typography>
+        
+        {profileLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <CircularProgress />
           </Box>
-          <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
-            <Typography variant="h4" color="secondary">
-              0
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Reviews Written
-            </Typography>
+        ) : profileError ? (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {profileError}
+          </Alert>
+        ) : (
+          <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+            <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
+              <Typography variant="h4" color="primary">
+                {profile?.stats.books_reviewed || 0}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Books Reviewed
+              </Typography>
+            </Box>
+            <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
+              <Typography variant="h4" color="secondary">
+                {profile?.stats.total_reviews || 0}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Reviews Written
+              </Typography>
+            </Box>
+            <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
+              <Typography variant="h4" color="error">
+                {profile?.stats.total_favorites || 0}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Favorites
+              </Typography>
+            </Box>
+            <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
+              <Typography variant="h4" color="success">
+                {profile?.stats.average_rating_given ? profile.stats.average_rating_given.toFixed(1) : 'N/A'}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Avg Rating Given
+              </Typography>
+            </Box>
           </Box>
-          <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
-            <Typography variant="h4" color="error">
-              0
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Favorites
-            </Typography>
-          </Box>
-          <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
-            <Typography variant="h4" color="success">
-              0
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Pages Read
-            </Typography>
-          </Box>
-        </Box>
+        )}
       </Paper>
 
       {/* Quick Actions */}
