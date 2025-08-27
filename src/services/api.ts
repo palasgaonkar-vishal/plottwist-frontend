@@ -137,22 +137,22 @@ export const authAPI = {
 // Books API endpoints
 export const booksAPI = {
   getBooks: (params?: any): Promise<AxiosResponse<any>> =>
-    publicApiClient.get('/books', { params }), // FIXED: Removed trailing slash
+    publicApiClient.get('/books/', { params }), // CRITICAL FIX: Backend requires trailing slash
 
   searchBooks: (params?: any): Promise<AxiosResponse<any>> =>
-    publicApiClient.get('/books/search', { params }), // FIXED: Removed trailing slash
+    publicApiClient.get('/books/search', { params }), // Correct: No trailing slash
 
   getBook: (id: number): Promise<AxiosResponse<any>> =>
-    publicApiClient.get(`/books/${id}`), // FIXED: Removed trailing slash
+    publicApiClient.get(`/books/${id}`), // Correct: No trailing slash
 
   createBook: (bookData: any): Promise<AxiosResponse<any>> =>
-    apiClient.post('/books', bookData), // FIXED: Removed trailing slash
+    apiClient.post('/books/', bookData), // CRITICAL FIX: Backend requires trailing slash
 
   updateBook: (id: number, bookData: any): Promise<AxiosResponse<any>> =>
-    apiClient.put(`/books/${id}`, bookData), // FIXED: Removed trailing slash
+    apiClient.put(`/books/${id}`, bookData), // Correct: No trailing slash
 
   deleteBook: (id: number): Promise<AxiosResponse<any>> =>
-    apiClient.delete(`/books/${id}`), // FIXED: Removed trailing slash
+    apiClient.delete(`/books/${id}`), // Correct: No trailing slash
 };
 
 // Genres API endpoints
@@ -168,66 +168,66 @@ export const genresAPI = {
 export const reviewsAPI = {
   // Create a new review
   createReview: (reviewData: ReviewCreate): Promise<AxiosResponse<any>> =>
-    apiClient.post('/reviews', reviewData),
+    apiClient.post('/reviews/', reviewData), // CRITICAL FIX: Backend requires trailing slash
 
   // Get a specific review by ID
   getReview: (reviewId: number): Promise<AxiosResponse<any>> =>
-    publicApiClient.get(`/reviews/${reviewId}`),
+    publicApiClient.get(`/reviews/${reviewId}`), // Correct: No trailing slash
 
   // Update an existing review (owner only)
   updateReview: (reviewId: number, reviewData: ReviewUpdate): Promise<AxiosResponse<any>> =>
-    apiClient.put(`/reviews/${reviewId}`, reviewData),
+    apiClient.put(`/reviews/${reviewId}`, reviewData), // Correct: No trailing slash
 
   // Delete a review (owner only)
   deleteReview: (reviewId: number): Promise<AxiosResponse<any>> =>
-    apiClient.delete(`/reviews/${reviewId}`),
+    apiClient.delete(`/reviews/${reviewId}`), // Correct: No trailing slash
 
   // Get reviews for a specific book (paginated)
   getBookReviews: (bookId: number, params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
-    publicApiClient.get(`/reviews/book/${bookId}`, { params }),
+    publicApiClient.get(`/reviews/book/${bookId}`, { params }), // Correct: No trailing slash
 
   // Get rating statistics for a book
   getBookRatingStats: (bookId: number): Promise<AxiosResponse<BookRatingStats>> =>
-    publicApiClient.get(`/reviews/book/${bookId}/stats`),
+    publicApiClient.get(`/reviews/book/${bookId}/stats`), // Correct: No trailing slash
 
   // Get current user's reviews
   getUserReviews: (params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
-    apiClient.get('/reviews/user/me', { params }),
+    apiClient.get('/reviews/user/me', { params }), // Correct: No trailing slash
 
   // Get current user's review statistics
   getUserReviewStats: (): Promise<AxiosResponse<UserReviewsResponse>> =>
-    apiClient.get('/reviews/user/me/stats'),
+    apiClient.get('/reviews/user/me/stats'), // Correct: No trailing slash
 
   // Get current user's review for a specific book
   getUserReviewForBook: (bookId: number): Promise<AxiosResponse<any>> =>
-    apiClient.get(`/reviews/user/me/book/${bookId}`),
+    apiClient.get(`/reviews/user/me/book/${bookId}`), // Correct: No trailing slash
 };
 
 // Users API endpoints
 export const usersAPI = {
   // Get current user's basic information
   getCurrentUser: (): Promise<AxiosResponse<any>> =>
-    apiClient.get('/users/me/'), // FIXED: Backend uses trailing slash
+    apiClient.get('/users/me/'), // Correct: Basic user info
 
   // Get current user's full profile with statistics
   getCurrentUserProfile: (): Promise<AxiosResponse<UserProfile>> =>
-    apiClient.get('/users/me/'), // FIXED: Backend uses trailing slash
+    apiClient.get('/users/me/profile/'), // FIXED: Should call profile endpoint, not basic user endpoint
 
   // Update current user's profile
   updateProfile: (userData: UserUpdate): Promise<AxiosResponse<any>> =>
-    apiClient.put('/users/me/', userData), // FIXED: Backend uses trailing slash
+    apiClient.put('/users/me/', userData), // Correct: Backend uses trailing slash
 
   // Get current user's reviews
   getUserReviews: (params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
-    apiClient.get('/users/me/reviews/', { params }), // FIXED: Backend uses trailing slash
+    apiClient.get('/users/me/reviews/', { params }), // Correct: Backend uses trailing slash
 
   // Get user by ID (public info)
   getUserById: (userId: number): Promise<AxiosResponse<any>> =>
-    publicApiClient.get(`/users/${userId}/`), // FIXED: Backend uses trailing slash
+    publicApiClient.get(`/users/${userId}/`), // Correct: Backend uses trailing slash
 
   // Get user's public profile
   getUserProfile: (userId: number): Promise<AxiosResponse<UserProfile>> =>
-    publicApiClient.get(`/users/${userId}/profile/`), // FIXED: Backend uses trailing slash
+    publicApiClient.get(`/users/${userId}/profile/`), // Correct: Backend uses trailing slash
 };
 
 // Favorites API endpoints
