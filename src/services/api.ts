@@ -207,64 +207,64 @@ export const reviewsAPI = {
 export const usersAPI = {
   // Get current user's basic information
   getCurrentUser: (): Promise<AxiosResponse<any>> =>
-    apiClient.get('/users/me'),
+    apiClient.get('/users/me/'), // FIXED: Backend uses trailing slash
 
   // Get current user's full profile with statistics
   getCurrentUserProfile: (): Promise<AxiosResponse<UserProfile>> =>
-    apiClient.get('/users/me'),
+    apiClient.get('/users/me/'), // FIXED: Backend uses trailing slash
 
   // Update current user's profile
   updateProfile: (userData: UserUpdate): Promise<AxiosResponse<any>> =>
-    apiClient.put('/users/me', userData),
+    apiClient.put('/users/me/', userData), // FIXED: Backend uses trailing slash
 
   // Get current user's reviews
   getUserReviews: (params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
-    apiClient.get('/users/me/reviews', { params }),
+    apiClient.get('/users/me/reviews/', { params }), // FIXED: Backend uses trailing slash
 
   // Get user by ID (public info)
   getUserById: (userId: number): Promise<AxiosResponse<any>> =>
-    publicApiClient.get(`/users/${userId}`),
+    publicApiClient.get(`/users/${userId}/`), // FIXED: Backend uses trailing slash
 
   // Get user's public profile
   getUserProfile: (userId: number): Promise<AxiosResponse<UserProfile>> =>
-    publicApiClient.get(`/users/${userId}/profile`),
+    publicApiClient.get(`/users/${userId}/profile/`), // FIXED: Backend uses trailing slash
 };
 
 // Favorites API endpoints
 export const favoritesAPI = {
   // Add a book to favorites
   addFavorite: (favoriteData: FavoriteCreate): Promise<AxiosResponse<any>> =>
-    apiClient.post('/favorites', favoriteData),
+    apiClient.post('/favorites/', favoriteData), // FIXED: Backend uses trailing slash
 
   // Remove a book from favorites
   removeFavorite: (bookId: number): Promise<AxiosResponse<any>> =>
-    apiClient.delete(`/favorites/${bookId}`),
+    apiClient.delete(`/favorites/${bookId}/`), // FIXED: Backend uses trailing slash
 
   // Toggle favorite status
   toggleFavorite: (bookId: number): Promise<AxiosResponse<FavoriteToggleResponse>> =>
-    apiClient.post(`/favorites/toggle/${bookId}`),
+    apiClient.post(`/favorites/toggle/${bookId}/`), // FIXED: Backend uses trailing slash
 
   // Check if book is favorited
   checkFavoriteStatus: (bookId: number): Promise<AxiosResponse<FavoriteStatus>> =>
-    apiClient.get(`/favorites/check/${bookId}`),
+    apiClient.get(`/favorites/check/${bookId}/`), // FIXED: Backend uses trailing slash
 
   // Get current user's favorites
   getUserFavorites: (page?: number, perPage?: number): Promise<AxiosResponse<UserFavoritesResponse>> =>
-    apiClient.get('/favorites/me', { 
+    apiClient.get('/favorites/me/', { // FIXED: Backend uses trailing slash
       params: { page, per_page: perPage } 
     }),
 
   // Get favorites count
   getFavoritesCount: (): Promise<AxiosResponse<FavoriteCount>> =>
-    apiClient.get('/favorites/count'),
+    apiClient.get('/favorites/count/'), // FIXED: Backend uses trailing slash
 
   // Get book favorites count
   getBookFavoritesCount: (bookId: number): Promise<AxiosResponse<FavoriteCount>> =>
-    publicApiClient.get(`/favorites/book/${bookId}/count`),
+    publicApiClient.get(`/favorites/book/${bookId}/count/`), // FIXED: Backend uses trailing slash
 
   // Get popular books
   getPopularBooks: (limit?: number): Promise<AxiosResponse<PopularBookResponse>> =>
-    publicApiClient.get('/favorites/popular', { 
+    publicApiClient.get('/favorites/popular/', { // FIXED: Backend uses trailing slash
       params: { limit } 
     }),
 };
@@ -273,29 +273,29 @@ export const favoritesAPI = {
 export const recommendationsAPI = {
   // Get content-based recommendations
   getContentBasedRecommendations: (params?: RecommendationParameters): Promise<AxiosResponse<RecommendationResponse>> =>
-    apiClient.get('/recommendations/content-based', { params }),
+    apiClient.get('/recommendations/content-based/', { params }), // FIXED: Backend uses trailing slash
 
   // Get popularity-based recommendations
   getPopularityBasedRecommendations: (params?: RecommendationParameters): Promise<AxiosResponse<RecommendationResponse>> =>
-    apiClient.get('/recommendations/popularity-based', { params }),
+    apiClient.get('/recommendations/popularity-based/', { params }), // FIXED: Backend uses trailing slash
 
   // Get all recommendation types
   getAllRecommendations: (params?: Omit<RecommendationParameters, 'genres'>): Promise<AxiosResponse<RecommendationListResponse>> =>
-    apiClient.get('/recommendations/all', { params }),
+    apiClient.get('/recommendations/all/', { params }), // FIXED: Backend uses trailing slash
 
   // Submit recommendation feedback
   submitFeedback: (feedback: RecommendationFeedbackCreate): Promise<AxiosResponse<any>> =>
-    apiClient.post('/recommendations/feedback', feedback),
+    apiClient.post('/recommendations/feedback/', feedback), // FIXED: Backend uses trailing slash
 
   // Get recommendation statistics
   getRecommendationStats: (recommendationType?: RecommendationType): Promise<AxiosResponse<RecommendationStats[]>> =>
-    apiClient.get('/recommendations/stats', { 
+    apiClient.get('/recommendations/stats/', { // FIXED: Backend uses trailing slash
       params: { recommendation_type: recommendationType } 
     }),
 
   // Invalidate user recommendations cache
   invalidateCache: (): Promise<AxiosResponse<any>> =>
-    apiClient.post('/recommendations/invalidate-cache'),
+    apiClient.post('/recommendations/invalidate-cache/'), // FIXED: Backend uses trailing slash
 };
 
 export default apiClient; 
