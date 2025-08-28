@@ -215,27 +215,8 @@ const Dashboard: React.FC = () => {
         ))}
       </Box>
 
-      {/* Recent Activity (Placeholder) */}
-      <Box sx={{ mt: 6 }}>
-        <Typography variant="h5" gutterBottom>
-          Recent Activity
-        </Typography>
-        <Paper sx={{ p: 3 }}>
-          <Typography variant="body1" color="text.secondary" textAlign="center">
-            No recent activity yet. Start by browsing books or writing your first review!
-          </Typography>
-          <Box textAlign="center" sx={{ mt: 2 }}>
-            <Button
-              component={Link}
-              to="/books"
-              variant="contained"
-              color="primary"
-            >
-              Browse Books
-            </Button>
-          </Box>
-        </Paper>
-      </Box>
+      {/* Recommendations Section */}
+      <RecommendationSection />
     </Container>
   );
 };
