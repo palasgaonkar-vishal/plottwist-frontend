@@ -186,20 +186,16 @@ export const reviewsAPI = {
   getBookReviews: (bookId: number, params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
     publicApiClient.get(`/reviews/book/${bookId}`, { params }), // Correct: No trailing slash
 
-  // Get rating statistics for a book
+  // Get book rating statistics
   getBookRatingStats: (bookId: number): Promise<AxiosResponse<BookRatingStats>> =>
     publicApiClient.get(`/reviews/book/${bookId}/stats`), // Correct: No trailing slash
-
-  // Get current user's reviews
-  getUserReviews: (params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
-    apiClient.get('/reviews/user/me', { params }), // Correct: No trailing slash
 
   // Get current user's review statistics
   getUserReviewStats: (): Promise<AxiosResponse<UserReviewsResponse>> =>
     apiClient.get('/reviews/user/me/stats'), // Correct: No trailing slash
 
-  // Get current user's review for a specific book
-  getUserReviewForBook: (bookId: number): Promise<AxiosResponse<any>> =>
+  // Check if current user has reviewed a specific book
+  getUserBookReview: (bookId: number): Promise<AxiosResponse<any>> =>
     apiClient.get(`/reviews/user/me/book/${bookId}`), // Correct: No trailing slash
 };
 
@@ -219,7 +215,7 @@ export const usersAPI = {
 
   // Get current user's reviews
   getUserReviews: (params?: ReviewListParams): Promise<AxiosResponse<ReviewListResponse>> =>
-    apiClient.get('/users/me/reviews/', { params }), // Correct: Backend uses trailing slash
+    apiClient.get('/users/me/reviews/', { params }), // FIXED: Use users endpoint that supports sorting
 
   // Get user by ID (public info)
   getUserById: (userId: number): Promise<AxiosResponse<any>> =>

@@ -17,7 +17,7 @@ import { useAppSelector } from '../../store/hooks';
 import ReviewCard from './ReviewCard';
 import ReviewForm from './ReviewForm';
 import { Review, ReviewListResponse, ReviewListParams } from '../../types/review';
-import { reviewsAPI } from '../../services/api';
+import { reviewsAPI, usersAPI } from '../../services/api';
 
 interface ReviewListProps {
   bookId: number;
@@ -68,7 +68,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
       let response: { data: ReviewListResponse };
       
       if (mode === 'user') {
-        response = await reviewsAPI.getUserReviews(requestParams);
+        response = await usersAPI.getUserReviews(requestParams);
       } else {
         response = await reviewsAPI.getBookReviews(bookId, requestParams);
       }
