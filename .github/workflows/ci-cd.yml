@@ -19,20 +19,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'npm'
 
-      - name: Configure npm for public registry
+      - name: Configure npm for public registry only
         run: |
           npm config set registry https://registry.npmjs.org/
-          npm config delete //registry.npmjs.org/:_authToken || true
+          npm config delete @adsk:registry || true
+          npm config delete @plangrid-private:registry || true
+          npm config delete @plangrid:registry || true
+          npm config set always-auth false
+          echo "NPM registry: $(npm config get registry)"
           npm config list
 
       - name: Install dependencies
-        run: |
-          npm cache clean --force
-          npm install
-        env:
-          NODE_AUTH_TOKEN: ""
-          NPM_CONFIG_REGISTRY: "https://registry.npmjs.org/"
+        run: npm install --verbose
 
       - name: Run basic checks
         run: |
@@ -56,19 +56,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+          cache: 'npm'
 
-      - name: Configure npm for public registry
+      - name: Configure npm for public registry only
         run: |
           npm config set registry https://registry.npmjs.org/
-          npm config delete //registry.npmjs.org/:_authToken || true
+          npm config delete @adsk:registry || true
+          npm config delete @plangrid-private:registry || true
+          npm config delete @plangrid:registry || true
+          npm config set always-auth false
 
       - name: Install dependencies
-        run: |
-          npm cache clean --force
-          npm install
-        env:
-          NODE_AUTH_TOKEN: ""
-          NPM_CONFIG_REGISTRY: "https://registry.npmjs.org/"
+        run: npm install --verbose
 
       - name: Run security checks
         run: |
@@ -80,6 +79,7 @@ jobs:
     name: Build Validation
     runs-on: ubuntu-latest
     needs: [test, security]
+    if: always()
     
     steps:
       - name: Validation Complete
