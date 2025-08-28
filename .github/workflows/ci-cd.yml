@@ -19,18 +19,20 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
 
-      - name: Clear npm cache and config
+      - name: Configure npm for public registry
         run: |
-          npm config delete registry || true
-          npm config set registry https://registry.npmjs.org
-          npm cache clean --force
+          npm config set registry https://registry.npmjs.org/
+          npm config delete //registry.npmjs.org/:_authToken || true
+          npm config list
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm cache clean --force
+          npm install
         env:
           NODE_AUTH_TOKEN: ""
+          NPM_CONFIG_REGISTRY: "https://registry.npmjs.org/"
 
       - name: Run basic checks
         run: |
@@ -54,18 +56,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
 
-      - name: Clear npm cache and config
+      - name: Configure npm for public registry
         run: |
-          npm config delete registry || true
-          npm config set registry https://registry.npmjs.org
-          npm cache clean --force
+          npm config set registry https://registry.npmjs.org/
+          npm config delete //registry.npmjs.org/:_authToken || true
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm cache clean --force
+          npm install
         env:
           NODE_AUTH_TOKEN: ""
+          NPM_CONFIG_REGISTRY: "https://registry.npmjs.org/"
 
       - name: Run security checks
         run: |
