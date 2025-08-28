@@ -16,6 +16,7 @@ import {
   CardContent,
   IconButton,
   Divider,
+  CardActions,
 } from '@mui/material';
 import {
   Person,
@@ -26,6 +27,7 @@ import {
   LocationOn,
   Language,
   CalendarToday,
+  Visibility,
 } from '@mui/icons-material';
 import { formatDistanceToNow } from 'date-fns';
 import { useAppSelector } from '../store/hooks';
@@ -37,6 +39,9 @@ import ProfileForm from '../components/User/ProfileForm';
 import ReviewList from '../components/Reviews/ReviewList';
 import BookCard from '../components/Books/BookCard';
 import FavoriteButton from '../components/User/FavoriteButton';
+import BookCover from '../components/Books/BookCover';
+import StarRating from '../components/Reviews/StarRating';
+import { useNavigate } from 'react-router-dom';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -66,6 +71,7 @@ function TabPanel(props: TabPanelProps) {
 
 const Profile: React.FC = () => {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  const navigate = useNavigate();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [favorites, setFavorites] = useState<UserFavoritesResponse | null>(null);
@@ -293,26 +299,107 @@ const Profile: React.FC = () => {
       <Grid container spacing={3}>
         {favorites.favorites.map((favorite) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={favorite.id}>
-            <Box sx={{ position: 'relative' }}>
-              <BookCard book={favorite.book} />
-              <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
-                <FavoriteButton
-                  bookId={favorite.book.id}
-                  bookTitle={favorite.book.title}
-                  size="small"
-                  onFavoriteChange={(isFavorite) => {
-                    if (!isFavorite) {
-                      // Remove from local state
-                      setFavorites(prev => prev ? {
-                        ...prev,
-                        favorites: prev.favorites.filter(f => f.id !== favorite.id),
-                        total: prev.total - 1,
-                      } : null);
-                    }
-                  }}
+            <Card 
+              sx={{ 
+                height: '100%', 
+                display: 'flex', 
+                flexDirection: 'column',
+                transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 4,
+                }
+              }}
+            >
+              {/* Book Cover */}
+              <Box sx={{ position: 'relative' }}>
+                <BookCover
+                  coverUrl={favorite.book.cover_url}
+                  title={favorite.book.title}
+                  author={favorite.book.author}
+                  height={200}
                 />
+                
+                {/* Single Favorite Button */}
+                <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+                  <FavoriteButton
+                    bookId={favorite.book.id}
+                    bookTitle={favorite.book.title}
+                    size="small"
+                    onFavoriteChange={(isFavorite) => {
+                      if (!isFavorite) {
+                        // Remove from local state when unfavorited
+                        setFavorites(prev => prev ? {
+                          ...prev,
+                          favorites: prev.favorites.filter(f => f.id !== favorite.id),
+                          total: prev.total - 1,
+                        } : null);
+                      }
+                    }}
+                  />
+                </Box>
               </Box>
-            </Box>
+
+              {/* Book Info */}
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography 
+                  variant="h6" 
+                  component="h3" 
+                  gutterBottom
+                  sx={{ 
+                    fontWeight: 600,
+                    fontSize: '1rem',
+                    lineHeight: 1.3,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {favorite.book.title}
+                </Typography>
+                
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary" 
+                  gutterBottom
+                  sx={{ mb: 1 }}
+                >
+                  by {favorite.book.author}
+                </Typography>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <StarRating
+                    value={favorite.book.average_rating || 0}
+                    readOnly
+                    size="small"
+                    showValue={false}
+                  />
+                  <Typography variant="caption" color="text.secondary">
+                    ({favorite.book.average_rating?.toFixed(1) || 'No ratings'})
+                  </Typography>
+                </Box>
+
+                {favorite.book.published_year && (
+                  <Typography variant="caption" color="text.secondary">
+                    Published: {favorite.book.published_year}
+                  </Typography>
+                )}
+              </CardContent>
+
+              {/* Actions */}
+              <CardActions sx={{ pt: 0 }}>
+                <Button
+                  startIcon={<Visibility />}
+                  onClick={() => navigate(`/books/${favorite.book.id}`)}
+                  variant="outlined"
+                  size="small"
+                  fullWidth
+                >
+                  View Details
+                </Button>
+              </CardActions>
+            </Card>
           </Grid>
         ))}
       </Grid>

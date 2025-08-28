@@ -98,7 +98,7 @@ const Dashboard: React.FC = () => {
     <Container maxWidth="lg">      
       <Box sx={{ mb: 4, pt: 2 }}>
         <Typography variant="h3" component="h1" gutterBottom color="primary">
-          Welcome back, {user?.name}! 📚
+          Welcome, {user?.name}! 📚
         </Typography>
         <Typography variant="h6" color="text.secondary">
           Ready to discover your next great read?
