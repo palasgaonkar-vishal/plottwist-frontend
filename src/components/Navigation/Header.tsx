@@ -64,6 +64,14 @@ const Header: React.FC = () => {
     navigate('/favorites');
   };
 
+  const handleReviews = () => {
+    navigate('/profile'); // Reviews are shown in Profile page under "My Reviews" tab
+  };
+
+  const handleRecommendations = () => {
+    navigate('/recommendations');
+  };
+
   const handleLogin = () => {
     navigate('/login');
   };
@@ -119,6 +127,20 @@ const Header: React.FC = () => {
               sx={{ textTransform: 'none' }}
             >
               Favorites
+            </Button>
+            <Button 
+              color="inherit" 
+              onClick={handleReviews}
+              sx={{ textTransform: 'none' }}
+            >
+              Reviews
+            </Button>
+            <Button 
+              color="inherit" 
+              onClick={handleRecommendations}
+              sx={{ textTransform: 'none' }}
+            >
+              Recommendations
             </Button>
           </Box>
         )}
