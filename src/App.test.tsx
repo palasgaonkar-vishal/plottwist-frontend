@@ -4,7 +4,8 @@ import App from './App';
 
 test('renders PlotTwist title', () => {
   render(<App />);
-  const titleElement = screen.getByText(/PlotTwist/i);
+  // Look for the main heading specifically, not just any text with PlotTwist
+  const titleElement = screen.getByRole('heading', { name: /📚 PlotTwist/i });
   expect(titleElement).toBeInTheDocument();
 });
 
