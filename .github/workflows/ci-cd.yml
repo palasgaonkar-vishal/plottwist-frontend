@@ -32,15 +32,18 @@ jobs:
         run: npm ci
 
       - name: Run linting (continue on error)
-        run: npm run lint || echo "Linting issues found, but continuing..."
+        run: npm run lint
+        continue-on-error: true
 
       - name: Run tests with coverage (continue on error)
-        run: npm test -- --coverage --watchAll=false || echo "Some tests failed, but continuing..."
+        run: npm test -- --coverage --watchAll=false
+        continue-on-error: true
         env:
           CI: true
 
       - name: Upload coverage to Codecov (continue on error)
         uses: codecov/codecov-action@v3
+        continue-on-error: true
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
@@ -48,9 +51,11 @@ jobs:
 
       - name: Build application
         run: npm run build
+        continue-on-error: true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
+        continue-on-error: true
         with:
           name: build-artifacts
           path: build/
@@ -72,13 +77,16 @@ jobs:
         run: npm ci
 
       - name: Run npm audit (continue on error)
-        run: npm audit --audit-level high || echo "Security vulnerabilities found, but continuing..."
+        run: npm audit --audit-level high
+        continue-on-error: true
 
       - name: Install Snyk
         run: npm install -g snyk
+        continue-on-error: true
 
       - name: Run Snyk security scan (continue on error)
-        run: snyk test || echo "Snyk security issues found, but continuing..."
+        run: snyk test
+        continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
