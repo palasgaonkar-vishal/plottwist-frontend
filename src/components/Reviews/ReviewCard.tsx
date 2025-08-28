@@ -16,14 +16,17 @@ import {
   DialogActions,
   Button,
   Alert,
+  Link,
 } from '@mui/material';
 import {
   MoreVert,
   Edit,
   Delete,
   Person,
+  Book as BookIcon,
 } from '@mui/icons-material';
 import { formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../../store/hooks';
 import StarRating from './StarRating';
 import ReviewForm from './ReviewForm';
@@ -47,6 +50,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
 }) => {
   const { user } = useAppSelector((state) => state.auth);
   const isOwner = user?.id === review.user_id;
+  const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -175,9 +179,13 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
               <Typography variant="caption" color="text.secondary">
                 Review for:
               </Typography>
-              <Typography variant="body2" sx={{ fontWeight: 500 }}>
+              <Link
+                variant="body2"
+                sx={{ fontWeight: 500, cursor: 'pointer' }}
+                onClick={() => navigate(`/books/${review.book_id}`)}
+              >
                 {review.book_title}
-              </Typography>
+              </Link>
               <Divider sx={{ mt: 1 }} />
             </Box>
           )}
