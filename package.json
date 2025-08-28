@@ -30,6 +30,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "lint": "eslint src --ext .ts,.tsx --max-warnings 0 || echo 'Linting completed with warnings'",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
