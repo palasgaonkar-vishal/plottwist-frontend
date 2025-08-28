@@ -19,19 +19,11 @@ import {
 } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import { useAppSelector } from '../store/hooks';
-import RecommendationSection from '../components/Recommendations/RecommendationSection';
-import { recommendationsAPI, usersAPI } from '../services/api'; // ADDED: usersAPI import
-import { 
-  RecommendationListResponse, 
-  RecommendationFeedbackCreate, 
-  RecommendationType 
-} from '../types/recommendation';
-import { UserProfile } from '../types/user'; // ADDED: UserProfile type
+import { usersAPI } from '../services/api'; // UPDATED: Removed unnecessary imports
+import { UserProfile } from '../types/user';
 
 const Dashboard: React.FC = () => {
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
-  const [recommendations, setRecommendations] = useState<RecommendationListResponse | null>(null);
-  const [recommendationsLoading, setRecommendationsLoading] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null); // ADDED: Profile state
   const [profileLoading, setProfileLoading] = useState(true); // ADDED: Profile loading state
   const [profileError, setProfileError] = useState<string>(''); // ADDED: Profile error state
@@ -214,9 +206,6 @@ const Dashboard: React.FC = () => {
           </Card>
         ))}
       </Box>
-
-      {/* Recommendations Section */}
-      <RecommendationSection />
     </Container>
   );
 };
