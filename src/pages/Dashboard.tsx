@@ -17,16 +17,26 @@ import {
   AutoAwesome,
   Star,
 } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../store/hooks';
 import { usersAPI } from '../services/api'; // UPDATED: Removed unnecessary imports
 import { UserProfile } from '../types/user';
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   const [profile, setProfile] = useState<UserProfile | null>(null); // ADDED: Profile state
   const [profileLoading, setProfileLoading] = useState(true); // ADDED: Profile loading state
   const [profileError, setProfileError] = useState<string>(''); // ADDED: Profile error state
+
+  // Navigation handlers for reading journey stats
+  const handleNavigateToReviews = () => {
+    navigate('/profile'); // Navigate to Profile page where reviews are shown
+  };
+
+  const handleNavigateToFavorites = () => {
+    navigate('/favorites');
+  };
 
   // ADDED: Load user profile statistics
   const loadProfile = useCallback(async () => {
@@ -111,7 +121,23 @@ const Dashboard: React.FC = () => {
           </Alert>
         ) : (
           <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-            <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
+            {/* Reviews Written - Clickable */}
+            <Box 
+              onClick={handleNavigateToReviews}
+              sx={{ 
+                flex: '1 1 200px', 
+                textAlign: 'center',
+                cursor: 'pointer',
+                p: 2,
+                borderRadius: 2,
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                  transform: 'translateY(-2px)',
+                  boxShadow: 2,
+                }
+              }}
+            >
               <Typography variant="h4" color="secondary">
                 {profile?.stats.total_reviews || 0}
               </Typography>
@@ -119,7 +145,24 @@ const Dashboard: React.FC = () => {
                 Reviews Written
               </Typography>
             </Box>
-            <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
+            
+            {/* Favorites - Clickable */}
+            <Box 
+              onClick={handleNavigateToFavorites}
+              sx={{ 
+                flex: '1 1 200px', 
+                textAlign: 'center',
+                cursor: 'pointer',
+                p: 2,
+                borderRadius: 2,
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                  transform: 'translateY(-2px)',
+                  boxShadow: 2,
+                }
+              }}
+            >
               <Typography variant="h4" color="error">
                 {profile?.stats.total_favorites || 0}
               </Typography>
@@ -127,7 +170,9 @@ const Dashboard: React.FC = () => {
                 Favorites
               </Typography>
             </Box>
-            <Box sx={{ flex: '1 1 200px', textAlign: 'center' }}>
+            
+            {/* Avg Rating Given - Non-clickable */}
+            <Box sx={{ flex: '1 1 200px', textAlign: 'center', p: 2 }}>
               <Typography variant="h4" color="success">
                 {profile?.stats.average_rating_given ? profile.stats.average_rating_given.toFixed(1) : 'N/A'}
               </Typography>
